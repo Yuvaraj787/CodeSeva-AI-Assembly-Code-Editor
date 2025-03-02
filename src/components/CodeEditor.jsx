@@ -21,6 +21,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import { useLLM } from '../services/llmService';
 
 const architectures = ['8051', 'ARM', 'x86'];
 
@@ -55,7 +56,7 @@ export const CodeEditor = () => {
   };
 
   const provideCommentToLine = async(lineContext) => {
-    var comment = await useLLM(`Provide a comment for the following line in ${architecture} language. : `+ lineContext + " . The response should be very short containing only short comment no other explanation")
+    var comment = await useLLM(`Provide a comment for the following line in ${architecture} language. : `+ lineContext + " . The response should be short containing only comment no other explanation")
     return comment;
   }
 
@@ -65,42 +66,17 @@ export const CodeEditor = () => {
     return nextLines;
   }
 
-  const useLLM =  async (prompt) => {
-    try {
-        const apiKey = "AIzaSyBi7INxXx7iKCL9RXNIC4tCPQCT5pgQ1ds";
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        
-        const payload = {
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }]
-        };
-  
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-  
-        const data = await response.json();
-        let aiText = data.candidates[0].content.parts[0].text;
-        return aiText
-      } catch (e) {
-        console.log("Error:", e);
-        return "Model ERROR";
-      }
-  }
-
   const handleAcceptSuggestion = () => {
     if (suggestions) {
       // Get current cursor position
       const currentPosition = textareaRef.current.selectionStart;
       
+      // Clean up suggestions by trimming and removing any extra newlines
+      const cleanedSuggestions = suggestions.trim();
+      
       // Insert suggestions at current position
       const newCode = code.substring(0, currentPosition) + 
-                     suggestions + 
+                     cleanedSuggestions + 
                      code.substring(currentPosition);
       
       setCode(newCode);
@@ -109,7 +85,7 @@ export const CodeEditor = () => {
 
       // Move cursor to end of inserted suggestions
       setTimeout(() => {
-        const newPosition = currentPosition + suggestions.length;
+        const newPosition = currentPosition + cleanedSuggestions.length;
         textareaRef.current.selectionStart = newPosition;
         textareaRef.current.selectionEnd = newPosition;
         textareaRef.current.focus();
@@ -123,18 +99,23 @@ export const CodeEditor = () => {
   };
 
   const handleEnterPress = async (currentLineContent) => {
-    // Get all lines
+    // Skip if line is empty or contains only whitespace
+    if (!currentLineContent || !currentLineContent.trim()) {
+      return;
+    }
+
+    // Get all lines and current cursor position
     const lines = code.split('\n');
-    // Find the current line index
-    const currentLineIndex = lines.findIndex(line => line === currentLineContent);
+    const currentPosition = textareaRef.current.selectionStart;
+    const currentLineNumber = code.substring(0, currentPosition).split('\n').length - 1;
     
-    if (currentLineIndex !== -1) {
+    if (currentLineNumber >= 0 && currentLineNumber < lines.length) {
       // Add custom string to the current line
       const customString = await provideCommentToLine(currentLineContent);
-      lines[currentLineIndex] = currentLineContent + "   ;" + customString + "\n";
+      lines[currentLineNumber] = currentLineContent + "   ;" + customString;
       
       // Get suggestions for next lines
-      const suggestedLines = await nextLinesSuggest(lines.slice(0, currentLineIndex + 1));
+      const suggestedLines = await nextLinesSuggest(lines.slice(0, currentLineNumber + 1));
       setSuggestions(suggestedLines);
       setShowSuggestionPopup(true);
 
@@ -146,9 +127,11 @@ export const CodeEditor = () => {
       const textarea = textareaRef.current;
       if (textarea) {
         setTimeout(() => {
-          const newPosition = textarea.selectionStart;
-          textarea.selectionStart = newPosition;
-          textarea.selectionEnd = newPosition;
+          // Calculate position at the start of next line
+          const nextLinePosition = newCode.split('\n').slice(0, currentLineNumber + 1).join('\n').length + 1;
+          textarea.selectionStart = nextLinePosition;
+          textarea.selectionEnd = nextLinePosition;
+          textarea.focus();
         }, 0);
       }
     }
@@ -215,6 +198,24 @@ export const CodeEditor = () => {
   const getLineNumbers = () => {
     const lines = code.split('\n');
     return lines.map((_, i) => i + 1).join('\n');
+  };
+
+  // Function to format the code with colored comments
+  const formatCodeWithComments = (text) => {
+    return text.split('\n').map((line, index) => {
+      const parts = line.split(';');
+      if (parts.length > 1) {
+        // If line has a comment
+        return (
+          <div key={index} style={{ display: 'flex' }}>
+            <span>{parts[0]}</span>
+            <span style={{ color: '#6A9955' }}>{';' + parts.slice(1).join(';')}</span>
+          </div>
+        );
+      }
+      // If line has no comment
+      return <div key={index}>{line}</div>;
+    });
   };
 
   const editorStyles = {
@@ -299,6 +300,41 @@ export const CodeEditor = () => {
       justifyContent: 'flex-end',
       padding: '8px',
       gap: '8px',
+    },
+    codeContainer: {
+      position: 'absolute',
+      left: '40px',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      padding: '8px',
+      color: '#d4d4d4',
+      backgroundColor: 'transparent',
+      fontFamily: 'inherit',
+      fontSize: 'inherit',
+      lineHeight: '1.5',
+      whiteSpace: 'pre',
+      overflow: 'auto',
+      zIndex: 2,
+      pointerEvents: 'none',
+    },
+    hiddenTextarea: {
+      position: 'absolute',
+      left: '40px',
+      top: 0,
+      right: 0,
+      bottom: 0,
+      padding: '8px',
+      color: 'transparent',
+      caretColor: '#fff',
+      backgroundColor: 'transparent',
+      border: 'none',
+      outline: 'none',
+      resize: 'none',
+      lineHeight: '1.5',
+      fontFamily: 'inherit',
+      fontSize: 'inherit',
+      zIndex: 1,
     }
   };
 
@@ -366,10 +402,13 @@ export const CodeEditor = () => {
               value={code}
               onChange={handleEditorChange}
               onKeyDown={handleKeyDown}
-              style={editorStyles.textarea}
+              style={editorStyles.hiddenTextarea}
               spellCheck="false"
               wrap="off"
             />
+            <div style={editorStyles.codeContainer}>
+              {formatCodeWithComments(code)}
+            </div>
             {suggestions && (
               <div 
                 style={{
