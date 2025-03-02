@@ -10,11 +10,17 @@ import {
   Typography,
   IconButton,
   Tooltip,
-  Paper
+  Paper,
+  Button,
+  Card,
+  CardActions,
+  CardContent
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SaveIcon from '@mui/icons-material/Save';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 
 const architectures = ['8051', 'ARM', 'x86'];
 
@@ -22,6 +28,8 @@ export const CodeEditor = () => {
   const [code, setCode] = useState('');
   const [architecture, setArchitecture] = useState('8051');
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [suggestions, setSuggestions] = useState('');
+  const [showSuggestionPopup, setShowSuggestionPopup] = useState(false);
   const textareaRef = useRef(null);
   const lineNumbersRef = useRef(null);
 
@@ -46,15 +54,75 @@ export const CodeEditor = () => {
     setCursorPosition(e.target.selectionStart);
   };
 
-  const provideCommentToLine = (lineContext) => {
-    return "This is a comment"
+  const provideCommentToLine = async(lineContext) => {
+    var comment = await useLLM(`Provide a comment for the following line in ${architecture} language. : `+ lineContext + " . The response should be very short containing only short comment no other explanation")
+    return comment;
   }
 
-  const nextLinesSuggest = (previousLines) => {
-    return ["This is a comment", "This is a comment", "This is a comment"]
+  const nextLinesSuggest = async (previousLines) => {
+    const previousLinesString = previousLines.join("\n")
+    var nextLines = await useLLM(`Provide next 2 lines of code in ${architecture} language. : `+ previousLinesString + " . The response should be very short containing only next 2 lines of code no other explanation")
+    return nextLines;
   }
 
-  const handleEnterPress = (currentLineContent) => {
+  const useLLM =  async (prompt) => {
+    try {
+        const apiKey = "AIzaSyBi7INxXx7iKCL9RXNIC4tCPQCT5pgQ1ds";
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        
+        const payload = {
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }]
+        };
+  
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+  
+        const data = await response.json();
+        let aiText = data.candidates[0].content.parts[0].text;
+        return aiText
+      } catch (e) {
+        console.log("Error:", e);
+        return "Model ERROR";
+      }
+  }
+
+  const handleAcceptSuggestion = () => {
+    if (suggestions) {
+      // Get current cursor position
+      const currentPosition = textareaRef.current.selectionStart;
+      
+      // Insert suggestions at current position
+      const newCode = code.substring(0, currentPosition) + 
+                     suggestions + 
+                     code.substring(currentPosition);
+      
+      setCode(newCode);
+      setSuggestions('');
+      setShowSuggestionPopup(false);
+
+      // Move cursor to end of inserted suggestions
+      setTimeout(() => {
+        const newPosition = currentPosition + suggestions.length;
+        textareaRef.current.selectionStart = newPosition;
+        textareaRef.current.selectionEnd = newPosition;
+        textareaRef.current.focus();
+      }, 0);
+    }
+  };
+
+  const handleDeclineSuggestion = () => {
+    setSuggestions('');
+    setShowSuggestionPopup(false);
+  };
+
+  const handleEnterPress = async (currentLineContent) => {
     // Get all lines
     const lines = code.split('\n');
     // Find the current line index
@@ -62,9 +130,14 @@ export const CodeEditor = () => {
     
     if (currentLineIndex !== -1) {
       // Add custom string to the current line
-      const customString = provideCommentToLine(currentLineContent); // You can modify this string as needed
+      const customString = await provideCommentToLine(currentLineContent);
       lines[currentLineIndex] = currentLineContent + "   ;" + customString + "\n";
       
+      // Get suggestions for next lines
+      const suggestedLines = await nextLinesSuggest(lines.slice(0, currentLineIndex + 1));
+      setSuggestions(suggestedLines);
+      setShowSuggestionPopup(true);
+
       // Join all lines back together
       const newCode = lines.join('\n');
       setCode(newCode);
@@ -184,7 +257,55 @@ export const CodeEditor = () => {
       fontFamily: 'inherit',
       fontSize: 'inherit',
       caretColor: '#fff',
+      zIndex: 1,
+    },
+    suggestions: {
+      position: 'absolute',
+      left: '40px',
+      right: 0,
+      top: 0,
+      bottom: 0,
+      padding: '8px',
+      color: '#d4d4d4',
+      opacity: 0.4,
+      pointerEvents: 'none',
+      whiteSpace: 'pre',
+      lineHeight: '1.5',
+      fontFamily: 'inherit',
+      fontSize: 'inherit',
+      overflow: 'hidden',
+      zIndex: 0,
+    },
+    suggestionPopup: {
+      position: 'absolute',
+      right: '20px',
+      top: '20px',
+      zIndex: 2,
+      width: '300px',
+      backgroundColor: '#252526',
+      color: '#d4d4d4',
+      borderRadius: '4px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+    },
+    suggestionContent: {
+      padding: '12px',
+      maxHeight: '150px',
+      overflow: 'auto',
+      whiteSpace: 'pre-wrap',
+      borderBottom: '1px solid #404040',
+    },
+    suggestionActions: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      padding: '8px',
+      gap: '8px',
     }
+  };
+
+  // Calculate the vertical offset for suggestions based on current code
+  const getSuggestionsOffset = () => {
+    const lines = code.split('\n').length;
+    return `${lines * 1.5}em`; // 1.5em matches the line-height
   };
 
   return (
@@ -249,6 +370,46 @@ export const CodeEditor = () => {
               spellCheck="false"
               wrap="off"
             />
+            {suggestions && (
+              <div 
+                style={{
+                  ...editorStyles.suggestions,
+                  marginTop: getSuggestionsOffset(),
+                }}
+              >
+                {suggestions}
+              </div>
+            )}
+            {showSuggestionPopup && suggestions && (
+              <Card style={editorStyles.suggestionPopup}>
+                <CardContent style={editorStyles.suggestionContent}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Suggested next lines:
+                  </Typography>
+                  <Typography variant="body2" style={{ color: '#d4d4d4' }}>
+                    {suggestions}
+                  </Typography>
+                </CardContent>
+                <CardActions style={editorStyles.suggestionActions}>
+                  <Button
+                    size="small"
+                    startIcon={<CloseIcon />}
+                    onClick={handleDeclineSuggestion}
+                    color="error"
+                  >
+                    Decline
+                  </Button>
+                  <Button
+                    size="small"
+                    startIcon={<CheckIcon />}
+                    onClick={handleAcceptSuggestion}
+                    color="success"
+                  >
+                    Accept
+                  </Button>
+                </CardActions>
+              </Card>
+            )}
           </div>
         </Paper>
       </Box>
