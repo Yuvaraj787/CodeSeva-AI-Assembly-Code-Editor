@@ -21,6 +21,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useLLM } from '../services/llmService';
 
 const architectures = ['8051', 'ARM', 'x86'];
@@ -33,6 +34,7 @@ export const CodeEditor = () => {
   const [showSuggestionPopup, setShowSuggestionPopup] = useState(false);
   const textareaRef = useRef(null);
   const lineNumbersRef = useRef(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     // Sync scroll between textarea and line numbers
@@ -98,10 +100,36 @@ export const CodeEditor = () => {
     setShowSuggestionPopup(false);
   };
 
+  const checkForErrors = async (lineContent) => {
+    const result = await useLLM({
+      architecture,
+      code: lineContent
+    }, true);
+    
+    if (!result.isValid) {
+      setError({
+        line: code.split('\n').length - 1,
+        message: result.message,
+        correction: result.correction,
+        nextLines: result.nextLines,
+        currentLine: lineContent // Store the current line content
+      });
+    } else {
+      setError(null);
+    }
+    return result.isValid;
+  };
+
   const handleEnterPress = async (currentLineContent) => {
     // Skip if line is empty or contains only whitespace
     if (!currentLineContent || !currentLineContent.trim()) {
       return;
+    }
+
+    // Check for errors first
+    const isValid = await checkForErrors(currentLineContent);
+    if (!isValid) {
+      return; // Don't proceed if there are errors
     }
 
     // Get all lines and current cursor position
@@ -335,13 +363,66 @@ export const CodeEditor = () => {
       fontFamily: 'inherit',
       fontSize: 'inherit',
       zIndex: 1,
-    }
+    },
+    errorPopup: {
+      position: 'absolute',
+      left: '45px',
+      padding: '4px 8px',
+      backgroundColor: '#ff000020',
+      color: '#ff6b6b',
+      borderLeft: '3px solid #ff6b6b',
+      fontSize: '12px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '4px',
+      zIndex: 3,
+    },
+    errorIcon: {
+      fontSize: '16px',
+      color: '#ff6b6b',
+    },
   };
 
   // Calculate the vertical offset for suggestions based on current code
   const getSuggestionsOffset = () => {
     const lines = code.split('\n').length;
     return `${lines * 1.5}em`; // 1.5em matches the line-height
+  };
+
+  const handleAcceptErrorSuggestion = () => {
+    if (error && error.correction) {
+      const lines = code.split('\n');
+      const currentLineIndex = code.split('\n').length - 1; // Get the current line index
+      
+      if (currentLineIndex >= 0) {
+        // Get the current line content
+        const currentLine = lines[currentLineIndex];
+        
+        // Replace the current line with the correction
+        lines[currentLineIndex] = error.correction;
+        
+        // Add next suggested lines if available
+        if (error.nextLines) {
+          const nextLines = error.nextLines.split('\n').filter(line => line.trim());
+          lines.splice(currentLineIndex + 1, 0, ...nextLines);
+        }
+        
+        const newCode = lines.join('\n');
+        setCode(newCode);
+        setError(null);
+        
+        // Move cursor to end of last inserted line
+        setTimeout(() => {
+          const newLines = newCode.split('\n');
+          const lastLineIndex = currentLineIndex + (error.nextLines ? nextLines.length : 0);
+          const lastLine = newLines[lastLineIndex];
+          const newPosition = newCode.split('\n').slice(0, lastLineIndex).join('\n').length + lastLine.length;
+          textareaRef.current.selectionStart = newPosition;
+          textareaRef.current.selectionEnd = newPosition;
+          textareaRef.current.focus();
+        }, 0);
+      }
+    }
   };
 
   return (
@@ -449,9 +530,98 @@ export const CodeEditor = () => {
                 </CardActions>
               </Card>
             )}
+            {error && (
+              <div style={{
+                ...styles.errorContainer,
+                top: `${(error.line + 1) * 21}px`, // Position based on line number
+                right: '20px'
+              }}>
+                <div style={styles.errorMessage}>
+                  <ErrorOutlineIcon style={{ fontSize: 16, marginRight: 8, color: '#ff6b6b' }} />
+                  {error.message}
+                </div>
+                <div style={styles.suggestionBox}>
+                  <div style={styles.suggestionTitle}>Suggested Correction:</div>
+                  <div style={styles.suggestionCode}>{error.correction}</div>
+                  {error.nextLines && (
+                    <>
+                      <div style={styles.suggestionTitle}>Next Lines:</div>
+                      <div style={styles.suggestionCode}>{error.nextLines}</div>
+                    </>
+                  )}
+                  <div style={styles.suggestionActions}>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      color="primary"
+                      onClick={handleAcceptErrorSuggestion}
+                      startIcon={<CheckIcon />}
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="error"
+                      onClick={() => setError(null)}
+                      startIcon={<CloseIcon />}
+                    >
+                      Decline
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </Paper>
       </Box>
     </Box>
   );
+};
+
+const styles = {
+  errorContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    width: '300px',
+    backgroundColor: '#fff',
+    borderRadius: '4px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+    zIndex: 1000,
+    marginTop: '8px',
+    marginRight: '8px'
+  },
+  errorMessage: {
+    padding: '8px 12px',
+    borderBottom: '1px solid #eee',
+    color: '#ff6b6b',
+    fontSize: '14px',
+    display: 'flex',
+    alignItems: 'center'
+  },
+  suggestionBox: {
+    padding: '12px'
+  },
+  suggestionTitle: {
+    fontSize: '12px',
+    color: '#666',
+    marginBottom: '4px',
+    fontWeight: 500
+  },
+  suggestionCode: {
+    fontFamily: 'monospace',
+    fontSize: '14px',
+    color: '#2e7d32',
+    backgroundColor: '#f1f8e9',
+    padding: '8px',
+    borderRadius: '4px',
+    marginBottom: '12px',
+    whiteSpace: 'pre-wrap'
+  },
+  suggestionActions: {
+    display: 'flex',
+    gap: '8px',
+    justifyContent: 'flex-end'
+  }
 }; 
