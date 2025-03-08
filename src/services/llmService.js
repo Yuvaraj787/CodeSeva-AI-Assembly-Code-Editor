@@ -1,24 +1,22 @@
-export const useLLM = async (prompt, isErrorCheck = false) => {
+export const useLLM = async (prompt, type = 'syntaxCheck') => {
   try {
-    const apiKey = "AIzaSyBi7INxXx7iKCL9RXNIC4tCPQCT5pgQ1ds";
+    const apiKey = process.env.GEMINI_API_KEY;
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
     
-    let finalPrompt = prompt;
-    if (isErrorCheck) {
-      finalPrompt = `You are an assembly language syntax validator for ${prompt.architecture} architecture.
-      Analyze this code: "${prompt.code}"
-      Check for:
-      
-      If there are ANY syntax errors, respond in this format:
-      ERROR: [short error message]
-      CORRECT: [corrected version of the line]
-      
-      
-      If the syntax is correct, respond with exactly 'VALID'.
-      Be very strict about syntax rules.`;
+    let finalPrompt = '';
+    switch (type) {
+      case 'syntaxCheck':
+        finalPrompt = `You are an assembly language syntax validator for ${prompt.architecture} architecture.\nAnalyze this code: "${prompt.code}"\nCheck for syntax errors and provide corrections.`;
+        break;
+      case 'codeSuggestion':
+        finalPrompt = `Based on the following code, suggest the next lines in ${prompt.architecture} language: "${prompt.code}"`;
+        break;
+      case 'commentGeneration':
+        finalPrompt = `Provide a comment for the following line in ${prompt.architecture} language: "${prompt.code}"`;
+        break;
+      default:
+        throw new Error('Invalid request type');
     }
-
-  
 
     const payload = {
       contents: [{
@@ -41,36 +39,24 @@ export const useLLM = async (prompt, isErrorCheck = false) => {
     
     let aiText = data.candidates[0].content.parts[0].text;
     
-    if (isErrorCheck) {
+    if (type === 'syntaxCheck') {
       const isValid = aiText.trim().toUpperCase() === 'VALID';
       if (isValid) {
-        const result = {
-          isValid: true,
-          message: 'Valid syntax'
-        };
-        console.log('Returning:', result);
-        return result;
+        return { isValid: true, message: 'Valid syntax' };
       }
 
-      // Parse error response
-      const errorMatch = aiText.match(/ERROR: (.*?)(?:\n|$)/).toString();
+      const errorMatch = aiText.match(/ERROR: (.*?)(?:\n|$)/);
       const correctMatch = aiText.match(/CORRECT: (.*?)(?:\n|$)/);
-      console.log('Error Match:', errorMatch);
-      const result = {
+      return {
         isValid: false,
-        message: errorMatch ? errorMatch.trim() : 'Syntax error',
+        message: errorMatch ? errorMatch[1].trim() : 'Syntax error',
         correction: correctMatch ? correctMatch[1].trim() : null,
       };
-      console.log('Returning:', result);
-      return result;
     }
 
-    console.log('Returning:', aiText);
     return aiText;
   } catch (e) {
     console.log("Error:", e);
-    const result = isErrorCheck ? { isValid: false, message: "Error checking code" } : "Model ERROR";
-    console.log('Returning:', result);
-    return result;
+    return type === 'syntaxCheck' ? { isValid: false, message: "Error checking code" } : "Model ERROR";
   }
 }; 

@@ -23,6 +23,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useLLM } from '../services/llmService';
+import ErrorPopup from './ErrorPopup';
+import EditorToolbar from './EditorToolbar';
 
 const architectures = ['8051', 'ARM', 'x86'];
 
@@ -52,7 +54,7 @@ export const CodeEditor = () => {
     return () => textarea.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleEditorChange = (e) => {
+  const handleEditorChange = async (e) => {
     const value = e.target.value;
     setCode(value);
     setCursorPosition(e.target.selectionStart);
@@ -66,6 +68,26 @@ export const CodeEditor = () => {
     const x = lines[lines.length - 1].length * 8; // Approximate character width
     
     setCursorCoords({ x, y });
+
+    // Trigger syntax validation
+    const currentLineContent = lines[lines.length - 1];
+    const syntaxResult = await useLLM({ architecture, code: currentLineContent }, 'syntaxCheck');
+    if (!syntaxResult.isValid) {
+      setError({
+        line: lines.length - 1,
+        message: syntaxResult.message,
+        correction: syntaxResult.correction,
+        nextLines: '',
+        currentLine: currentLineContent
+      });
+    } else {
+      setError(null);
+    }
+
+    // Trigger code suggestions
+    const suggestionResult = await useLLM({ architecture, code: textBeforeCursor }, 'codeSuggestion');
+    setSuggestions(suggestionResult);
+    setShowSuggestionPopup(true);
   };
 
   const provideCommentToLine = async(lineContext) => {
@@ -433,42 +455,12 @@ export const CodeEditor = () => {
 
   return (
     <Box sx={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column' }}>
-      <AppBar position="static" color="default" elevation={1}>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 0, mr: 3 }}>
-            Assembly Editor
-          </Typography>
-          
-          <FormControl sx={{ minWidth: 120, mr: 2 }}>
-            <InputLabel>Architecture</InputLabel>
-            <Select
-              value={architecture}
-              label="Architecture"
-              onChange={(e) => setArchitecture(e.target.value)}
-              size="small"
-            >
-              {architectures.map((arch) => (
-                <MenuItem key={arch} value={arch}>{arch}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <Box sx={{ flexGrow: 1 }} />
-
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Tooltip title="Open File">
-              <IconButton onClick={handleLoad} color="primary">
-                <FileOpenIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Save">
-              <IconButton onClick={handleSave} color="primary">
-                <SaveIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      <EditorToolbar
+        architecture={architecture}
+        setArchitecture={setArchitecture}
+        handleLoad={handleLoad}
+        handleSave={handleSave}
+      />
 
       <Box sx={{ flexGrow: 1, p: 2 }}>
         <Paper elevation={3} sx={{ height: '100%', overflow: 'hidden' }}>
@@ -535,57 +527,12 @@ export const CodeEditor = () => {
                 </CardActions>
               </Card>
             )}
-            {error && (
-              <Card style={{
-                ...editorStyles.errorPopup,
-                left: `${cursorCoords.x + 50}px`,
-                top: `${cursorCoords.y}px`
-              }}>
-                <CardContent style={editorStyles.suggestionContent}>
-                  <Typography variant="subtitle2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <ErrorOutlineIcon style={{ color: '#ff6b6b' }} />
-                    Error:
-                  </Typography>
-                  <Typography variant="body2" color="error" gutterBottom>
-                    {error.message}
-                  </Typography>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Suggested Correction:
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#2e7d32', bgcolor: '#f1f8e9', p: 1, borderRadius: 1 }}>
-                    {error.correction}
-                  </Typography>
-                  {error.nextLines && (
-                    <>
-                      <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
-                        Next Lines:
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: '#2e7d32', bgcolor: '#f1f8e9', p: 1, borderRadius: 1 }}>
-                        {error.nextLines}
-                      </Typography>
-                    </>
-                  )}
-                </CardContent>
-                <CardActions style={editorStyles.suggestionActions}>
-                  <Button
-                    size="small"
-                    startIcon={<CloseIcon />}
-                    onClick={() => setError(null)}
-                    color="error"
-                  >
-                    Decline
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<CheckIcon />}
-                    onClick={handleAcceptErrorSuggestion}
-                    color="success"
-                  >
-                    Accept
-                  </Button>
-                </CardActions>
-              </Card>
-            )}
+            <ErrorPopup
+              error={error}
+              cursorCoords={cursorCoords}
+              handleAcceptErrorSuggestion={handleAcceptErrorSuggestion}
+              setError={setError}
+            />
           </div>
         </Paper>
       </Box>
