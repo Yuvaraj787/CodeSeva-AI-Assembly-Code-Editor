@@ -35,6 +35,7 @@ export const CodeEditor = () => {
   const textareaRef = useRef(null);
   const lineNumbersRef = useRef(null);
   const [error, setError] = useState(null);
+  const [cursorCoords, setCursorCoords] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     // Sync scroll between textarea and line numbers
@@ -55,6 +56,16 @@ export const CodeEditor = () => {
     const value = e.target.value;
     setCode(value);
     setCursorPosition(e.target.selectionStart);
+    
+    // Get cursor coordinates
+    const cursorIndex = e.target.selectionStart;
+    const textBeforeCursor = value.substring(0, cursorIndex);
+    const lines = textBeforeCursor.split('\n');
+    const lineHeight = 21; // Approximate line height in pixels
+    const y = lines.length * lineHeight;
+    const x = lines[lines.length - 1].length * 8; // Approximate character width
+    
+    setCursorCoords({ x, y });
   };
 
   const provideCommentToLine = async(lineContext) => {
@@ -307,10 +318,8 @@ export const CodeEditor = () => {
     },
     suggestionPopup: {
       position: 'absolute',
-      right: '20px',
-      top: '20px',
       zIndex: 2,
-      width: '320px', // Slightly wider for better visibility
+      width: '320px',
       backgroundColor: '#252526',
       color: '#d4d4d4',
       borderRadius: '6px',
@@ -501,7 +510,11 @@ export const CodeEditor = () => {
               </div>
             )}
             {showSuggestionPopup && suggestions && (
-              <Card style={editorStyles.suggestionPopup}>
+              <Card style={{
+                ...editorStyles.suggestionPopup,
+                left: `${cursorCoords.x + 50}px`,
+                top: `${cursorCoords.y}px`
+              }}>
                 <CardContent style={editorStyles.suggestionContent}>
                   <Typography variant="subtitle2" gutterBottom>
                     Suggested next lines:
