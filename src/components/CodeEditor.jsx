@@ -245,44 +245,44 @@ export const CodeEditor = () => {
       return <div key={index}>{line}</div>;
     });
   };
-
+  
   const editorStyles = {
     container: {
       position: 'relative',
-      height: '100%',
+      height: '600px', // Increased height for better editing experience
       backgroundColor: '#1e1e1e',
       fontFamily: 'Consolas, Monaco, "Courier New", monospace',
-      fontSize: '14px',
+      fontSize: '16px', // Slightly larger font for readability
     },
     lineNumbers: {
       position: 'absolute',
       left: 0,
       top: 0,
       bottom: 0,
-      width: '40px',
+      width: '50px', // Adjusted width for better spacing
       backgroundColor: '#252526',
       color: '#858585',
       borderRight: '1px solid #404040',
       textAlign: 'right',
-      padding: '8px 4px',
+      padding: '12px 6px', // Increased padding
       userSelect: 'none',
       overflow: 'hidden',
       whiteSpace: 'pre',
-      lineHeight: '1.5',
+      lineHeight: '1.6',
     },
     textarea: {
       position: 'absolute',
-      left: '40px',
+      left: '50px', // Adjusted to match line number width
       top: 0,
       right: 0,
       bottom: 0,
-      padding: '8px',
+      padding: '12px',
       color: '#d4d4d4',
       backgroundColor: 'transparent',
       border: 'none',
       outline: 'none',
       resize: 'none',
-      lineHeight: '1.5',
+      lineHeight: '1.6',
       fontFamily: 'inherit',
       fontSize: 'inherit',
       caretColor: '#fff',
@@ -290,16 +290,16 @@ export const CodeEditor = () => {
     },
     suggestions: {
       position: 'absolute',
-      left: '40px',
+      left: '50px',
       right: 0,
       top: 0,
       bottom: 0,
-      padding: '8px',
+      padding: '12px',
       color: '#d4d4d4',
       opacity: 0.4,
       pointerEvents: 'none',
       whiteSpace: 'pre',
-      lineHeight: '1.5',
+      lineHeight: '1.6',
       fontFamily: 'inherit',
       fontSize: 'inherit',
       overflow: 'hidden',
@@ -310,15 +310,15 @@ export const CodeEditor = () => {
       right: '20px',
       top: '20px',
       zIndex: 2,
-      width: '300px',
+      width: '320px', // Slightly wider for better visibility
       backgroundColor: '#252526',
       color: '#d4d4d4',
-      borderRadius: '4px',
+      borderRadius: '6px',
       boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
     },
     suggestionContent: {
       padding: '12px',
-      maxHeight: '150px',
+      maxHeight: '180px',
       overflow: 'auto',
       whiteSpace: 'pre-wrap',
       borderBottom: '1px solid #404040',
@@ -331,16 +331,16 @@ export const CodeEditor = () => {
     },
     codeContainer: {
       position: 'absolute',
-      left: '40px',
+      left: '50px',
       top: 0,
       right: 0,
       bottom: 0,
-      padding: '8px',
+      padding: '12px',
       color: '#d4d4d4',
       backgroundColor: 'transparent',
       fontFamily: 'inherit',
       fontSize: 'inherit',
-      lineHeight: '1.5',
+      lineHeight: '1.6',
       whiteSpace: 'pre',
       overflow: 'auto',
       zIndex: 2,
@@ -348,41 +348,41 @@ export const CodeEditor = () => {
     },
     hiddenTextarea: {
       position: 'absolute',
-      left: '40px',
+      left: '50px',
       top: 0,
       right: 0,
       bottom: 0,
-      padding: '8px',
+      padding: '12px',
       color: 'transparent',
       caretColor: '#fff',
       backgroundColor: 'transparent',
       border: 'none',
       outline: 'none',
       resize: 'none',
-      lineHeight: '1.5',
+      lineHeight: '1.6',
       fontFamily: 'inherit',
       fontSize: 'inherit',
       zIndex: 1,
     },
     errorPopup: {
       position: 'absolute',
-      left: '45px',
-      padding: '4px 8px',
+      left: '55px',
+      padding: '6px 12px',
       backgroundColor: '#ff000020',
       color: '#ff6b6b',
-      borderLeft: '3px solid #ff6b6b',
-      fontSize: '12px',
+      borderLeft: '3px solid rgb(132, 3, 3)',
+      fontSize: '14px',
       display: 'flex',
       alignItems: 'center',
-      gap: '4px',
+      gap: '6px',
       zIndex: 3,
     },
     errorIcon: {
-      fontSize: '16px',
+      fontSize: '18px',
       color: '#ff6b6b',
     },
   };
-
+  
   // Calculate the vertical offset for suggestions based on current code
   const getSuggestionsOffset = () => {
     const lines = code.split('\n').length;
@@ -398,8 +398,8 @@ export const CodeEditor = () => {
         // Get the current line content
         const currentLine = lines[currentLineIndex];
         
-        // Replace the current line with the correction
-        lines[currentLineIndex] = error.correction;
+        // Remove the incorrect line and replace with correction
+        lines.splice(currentLineIndex, 1, error.correction);
         
         // Add next suggested lines if available
         if (error.nextLines) {
@@ -426,7 +426,7 @@ export const CodeEditor = () => {
   };
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column' }}>
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 0, mr: 3 }}>
