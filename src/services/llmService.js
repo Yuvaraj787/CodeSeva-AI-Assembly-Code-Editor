@@ -2,7 +2,6 @@ export const useLLM = async (prompt, isErrorCheck = false) => {
   try {
     const apiKey = "AIzaSyBi7INxXx7iKCL9RXNIC4tCPQCT5pgQ1ds";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    
     let finalPrompt = prompt;
     if (isErrorCheck) {
       finalPrompt = `You are an assembly language syntax validator for ${prompt.architecture} architecture.
