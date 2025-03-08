@@ -44,8 +44,8 @@ export const useLLM = async (prompt, type = 'syntaxCheck') => {
       if (isValid) {
         return { isValid: true, message: 'Valid syntax' };
       }
-
-      const errorMatch = aiText.match(/ERROR: (.*?)(?:\n|$)/);
+      // Parse error response
+      const errorMatch = aiText.match(/ERROR: (.*?)(?:\n|$)/).toString();
       const correctMatch = aiText.match(/CORRECT: (.*?)(?:\n|$)/);
       return {
         isValid: false,
