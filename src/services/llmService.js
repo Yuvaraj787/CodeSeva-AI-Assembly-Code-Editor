@@ -7,17 +7,26 @@ export const useLLM = async (prompt, isErrorCheck = false) => {
       finalPrompt = `You are an assembly language syntax validator for ${prompt.architecture} architecture.
       Analyze this code: "${prompt.code}"
       Check for:
+      - Syntax errors
+      - Invalid opcodes or operands
+      - Case sensitivity issues
+      - Missing or incorrect syntax elements
+      - Register usage errors
+      - Invalid addressing modes
+      - Invalid instruction format
       
       If there are ANY syntax errors, respond in this format:
       ERROR: [short error message]
-      CORRECT: [corrected version of the line]
-      
+      CORRECTION_1: [first corrected version of the line]
+      CORRECTION_2: [second alternative corrected version of the line]
+      CORRECTION_3: [third alternative corrected version of the line]
+      EXPLANATION: [brief explanation of what was wrong]
       
       If the syntax is correct, respond with exactly 'VALID'.
-      Be very strict about syntax rules.`;
+      Be very strict about syntax rules for ${prompt.architecture} architecture.`;
     }
 
-  
+
 
     const payload = {
       contents: [{
@@ -37,9 +46,9 @@ export const useLLM = async (prompt, isErrorCheck = false) => {
     if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
       throw new Error("Invalid response from LLM");
     }
-    
+
     let aiText = data.candidates[0].content.parts[0].text;
-    
+
     if (isErrorCheck) {
       const isValid = aiText.trim().toUpperCase() === 'VALID';
       if (isValid) {
@@ -51,13 +60,23 @@ export const useLLM = async (prompt, isErrorCheck = false) => {
         return result;
       }
       // Parse error response
-      const errorMatch = aiText.match(/ERROR: (.*?)(?:\n|$)/).toString();
-      const correctMatch = aiText.match(/CORRECT: (.*?)(?:\n|$)/);
+      const errorMatch = aiText.match(/ERROR: (.*?)(?:\n|$)/);
+      const correction1Match = aiText.match(/CORRECTION_1: (.*?)(?:\n|$)/);
+      const correction2Match = aiText.match(/CORRECTION_2: (.*?)(?:\n|$)/);
+      const correction3Match = aiText.match(/CORRECTION_3: (.*?)(?:\n|$)/);
+      const explanationMatch = aiText.match(/EXPLANATION: (.*?)(?:\n|$)/);
+
       console.log('Error Match:', errorMatch);
       const result = {
         isValid: false,
-        message: errorMatch ? errorMatch.trim() : 'Syntax error',
-        correction: correctMatch ? correctMatch[1].trim() : null,
+        message: errorMatch ? errorMatch[1].trim() : 'Syntax error',
+        corrections: [
+          correction1Match ? correction1Match[1].trim() : null,
+          correction2Match ? correction2Match[1].trim() : null,
+          correction3Match ? correction3Match[1].trim() : null
+        ].filter(Boolean),
+        explanation: explanationMatch ? explanationMatch[1].trim() : null,
+        correction: correction1Match ? correction1Match[1].trim() : null, // For backward compatibility
       };
       console.log('Returning:', result);
       return result;

@@ -32,10 +32,12 @@ export const CodeEditor = () => {
   const [cursorPosition, setCursorPosition] = useState(0);
   const [suggestions, setSuggestions] = useState('');
   const [showSuggestionPopup, setShowSuggestionPopup] = useState(false);
+  const [isCtrlEnterSuggestion, setIsCtrlEnterSuggestion] = useState(false);
   const textareaRef = useRef(null);
   const lineNumbersRef = useRef(null);
   const [error, setError] = useState(null);
   const [cursorCoords, setCursorCoords] = useState({ x: 0, y: 0 });
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
 
   useEffect(() => {
     // Sync scroll between textarea and line numbers
@@ -74,31 +76,71 @@ export const CodeEditor = () => {
   }
 
   const nextLinesSuggest = async (previousLines) => {
-    const previousLinesString = previousLines.join("\n")
-    var nextLines = await useLLM(`Provide next 2 lines of code in ${architecture} language. : `+ previousLinesString + " . The response should be very short containing only next 2 lines of code no other explanation")
-    return nextLines;
-  }
+    const previousLinesString = previousLines.join("\n");
+    var nextLines = await useLLM(`Given the following ${architecture} assembly code:
+${previousLinesString}
+
+Provide 3 DIFFERENT possible next lines. Each suggestion should be a single line of assembly code.
+Format your response exactly like this, with exactly 3 suggestions:
+SUGGESTION_1: [first line]
+SUGGESTION_2: [second line]
+SUGGESTION_3: [third line]
+
+Make each suggestion unique and valid for ${architecture} architecture.`);
+    
+    // Parse the suggestions
+    const suggestions = [];
+    const lines = nextLines.split('\n');
+    
+    for (let i = 1; i <= 3; i++) {
+      const match = lines.find(line => line.startsWith(`SUGGESTION_${i}:`));
+      if (match) {
+        const suggestion = match.substring(`SUGGESTION_${i}:`.length).trim();
+        if (suggestion) {
+          suggestions.push(suggestion);
+        }
+      }
+    }
+    
+    // If we got valid suggestions, get comments for each
+    if (suggestions.length > 0) {
+      const suggestionsWithComments = await Promise.all(
+        suggestions.map(async (line) => {
+          const comment = await provideCommentToLine(line);
+          return `${line}   ;${comment}`;
+        })
+      );
+      return suggestionsWithComments;
+    }
+    
+    return [];
+  };
 
   const handleAcceptSuggestion = () => {
-    if (suggestions) {
+    if (suggestions && Array.isArray(suggestions) && suggestions.length > 0) {
       // Get current cursor position
       const currentPosition = textareaRef.current.selectionStart;
       
-      // Clean up suggestions by trimming and removing any extra newlines
-      const cleanedSuggestions = suggestions.trim();
+      // Get the selected suggestion
+      const selectedSuggestion = suggestions[selectedSuggestionIndex];
       
-      // Insert suggestions at current position
+      // Clean up suggestion by trimming and removing any extra newlines
+      const cleanedSuggestion = selectedSuggestion.trim();
+      
+      // Insert suggestion at current position with proper line break
       const newCode = code.substring(0, currentPosition) + 
-                     cleanedSuggestions + 
+                     '\n' + cleanedSuggestion + 
                      code.substring(currentPosition);
       
       setCode(newCode);
-      setSuggestions('');
+      setSuggestions([]);
       setShowSuggestionPopup(false);
+      setIsCtrlEnterSuggestion(false);
+      setSelectedSuggestionIndex(0);
 
-      // Move cursor to end of inserted suggestions
+      // Move cursor to the start of the next line
       setTimeout(() => {
-        const newPosition = currentPosition + cleanedSuggestions.length;
+        const newPosition = currentPosition + cleanedSuggestion.length + 2; // +2 for the added newline
         textareaRef.current.selectionStart = newPosition;
         textareaRef.current.selectionEnd = newPosition;
         textareaRef.current.focus();
@@ -109,6 +151,7 @@ export const CodeEditor = () => {
   const handleDeclineSuggestion = () => {
     setSuggestions('');
     setShowSuggestionPopup(false);
+    setIsCtrlEnterSuggestion(false);
   };
 
   const checkForErrors = async (lineContent) => {
@@ -122,6 +165,7 @@ export const CodeEditor = () => {
         line: code.split('\n').length - 1,
         message: result.message,
         correction: result.correction,
+        corrections: result.corrections || [result.correction].filter(Boolean),
         nextLines: result.nextLines,
         currentLine: lineContent // Store the current line content
       });
@@ -146,30 +190,29 @@ export const CodeEditor = () => {
     // Get all lines and current cursor position
     const lines = code.split('\n');
     const currentPosition = textareaRef.current.selectionStart;
-    const currentLineNumber = code.substring(0, currentPosition).split('\n').length - 1;
-    
+    const currentLineNumber = code.split('\n').filter(line => line.trim()).length - 1;
+    //log the current line number
+    console.log(currentLineNumber);
     if (currentLineNumber >= 0 && currentLineNumber < lines.length) {
       // Add custom string to the current line
       const customString = await provideCommentToLine(currentLineContent);
       lines[currentLineNumber] = currentLineContent + "   ;" + customString;
       
-      // Get suggestions for next lines
-      const suggestedLines = await nextLinesSuggest(lines.slice(0, currentLineNumber + 1));
-      setSuggestions(suggestedLines);
-      setShowSuggestionPopup(true);
-
       // Join all lines back together
       const newCode = lines.join('\n');
       setCode(newCode);
+      
+      // Add a new line after the current line
+      const newPosition = newCode.split('\n').slice(0, currentLineNumber + 1).join('\n').length;
+      const finalCode = newCode.substring(0, newPosition)  + newCode.substring(newPosition);
+      setCode(finalCode);
       
       // Update cursor position to the next line
       const textarea = textareaRef.current;
       if (textarea) {
         setTimeout(() => {
-          // Calculate position at the start of next line
-          const nextLinePosition = newCode.split('\n').slice(0, currentLineNumber + 1).join('\n').length + 1;
-          textarea.selectionStart = nextLinePosition;
-          textarea.selectionEnd = nextLinePosition;
+          textarea.selectionStart = newPosition;
+          textarea.selectionEnd = newPosition;
           textarea.focus();
         }, 0);
       }
@@ -191,6 +234,10 @@ export const CodeEditor = () => {
       setTimeout(() => {
         e.target.selectionStart = e.target.selectionEnd = start + spaces.length;
       }, 0);
+    } else if (e.key === 'Enter' && e.ctrlKey) {
+      // Handle Ctrl+Enter for next line suggestions without comments
+      e.preventDefault();
+      handleCtrlEnterPress();
     } else if (e.key === 'Enter') {
       // Get the current line content before Enter is pressed
       const lines = code.split('\n');
@@ -202,6 +249,33 @@ export const CodeEditor = () => {
       setTimeout(() => {
         handleEnterPress(currentLineContent);
       }, 0);
+    }
+  };
+
+  const handleCtrlEnterPress = async () => {
+    // Get all lines and current cursor position
+    const lines = code.split('\n');
+    const currentPosition = textareaRef.current.selectionStart;
+    const currentLineNumber = code.substring(0, currentPosition).split('\n').length - 1;
+    
+    if (currentLineNumber >= 0 && currentLineNumber < lines.length) {
+      // Get suggestions for next lines without adding comments
+      const suggestedLines = await nextLinesSuggest(lines.slice(0, currentLineNumber + 1));
+      setSuggestions(suggestedLines);
+      setShowSuggestionPopup(true);
+      setIsCtrlEnterSuggestion(true);
+      
+      // Update cursor coordinates for popup positioning
+      const textarea = textareaRef.current;
+      if (textarea) {
+        const textBeforeCursor = code.substring(0, currentPosition);
+        const lines = textBeforeCursor.split('\n');
+        const lineHeight = 21; // Approximate line height in pixels
+        const y = lines.length * lineHeight;
+        const x = lines[lines.length - 1].length * 8; // Approximate character width
+        
+        setCursorCoords({ x, y });
+      }
     }
   };
 
@@ -395,36 +469,34 @@ export const CodeEditor = () => {
     return `${lines * 1.5}em`; // 1.5em matches the line-height
   };
 
-  const handleAcceptErrorSuggestion = () => {
-    if (error && error.correction) {
+  const handleAcceptErrorSuggestion = (correctionIndex = 0) => {
+    if (error && error.corrections && error.corrections.length > correctionIndex) {
       const lines = code.split('\n');
-      const currentLineIndex = code.split('\n').length - 1; // Get the current line index
       
-      if (currentLineIndex >= 0) {
-        // Get the current line content
-        const currentLine = lines[currentLineIndex];
-        
-        // Remove the incorrect line and replace with correction
-        lines.splice(currentLineIndex, 1, error.correction);
+      // Find the line with the error (should be the line that matches error.currentLine)
+      const errorLineIndex = lines.findIndex(line => line.trim() === error.currentLine.trim());
+      
+      if (errorLineIndex >= 0) {
+        // Replace the error line with the selected correction
+        lines[errorLineIndex] = error.corrections[correctionIndex];
         
         // Add next suggested lines if available
         if (error.nextLines) {
           const nextLines = error.nextLines.split('\n').filter(line => line.trim());
-          lines.splice(currentLineIndex + 1, 0, ...nextLines);
+          lines.splice(errorLineIndex + 1, 0, ...nextLines);
         }
         
         const newCode = lines.join('\n');
         setCode(newCode);
         setError(null);
         
-        // Move cursor to end of last inserted line
+        // Move cursor to end of corrected line
         setTimeout(() => {
           const newLines = newCode.split('\n');
-          const lastLineIndex = currentLineIndex + (error.nextLines ? nextLines.length : 0);
-          const lastLine = newLines[lastLineIndex];
-          const newPosition = newCode.split('\n').slice(0, lastLineIndex).join('\n').length + lastLine.length;
-          textareaRef.current.selectionStart = newPosition;
-          textareaRef.current.selectionEnd = newPosition;
+          const lastLineIndex = errorLineIndex + (error.nextLines ? error.nextLines.split('\n').filter(line => line.trim()).length : 0);
+          const position = newCode.split('\n').slice(0, lastLineIndex + 1).join('\n').length;
+          textareaRef.current.selectionStart = position;
+          textareaRef.current.selectionEnd = position;
           textareaRef.current.focus();
         }, 0);
       }
@@ -452,6 +524,12 @@ export const CodeEditor = () => {
               ))}
             </Select>
           </FormControl>
+
+          <Tooltip title="Press Enter to add comments to current line. Press Ctrl+Enter to get next line suggestions.">
+            <Typography variant="caption" sx={{ color: 'text.secondary', mr: 2 }}>
+              Ctrl+Enter for next line suggestions
+            </Typography>
+          </Tooltip>
 
           <Box sx={{ flexGrow: 1 }} />
 
@@ -498,22 +576,71 @@ export const CodeEditor = () => {
                   marginTop: getSuggestionsOffset(),
                 }}
               >
-                {suggestions}
+                {suggestions.map((suggestion, index) => (
+                  <Box 
+                    key={index} 
+                    sx={{ 
+                      mb: 2, 
+                      p: 1, 
+                      bgcolor: selectedSuggestionIndex === index ? '#2b2d30' : 'transparent',
+                      borderRadius: 1,
+                      cursor: 'pointer',
+                      border: selectedSuggestionIndex === index ? '2px solid #2e7d32' : '2px solid transparent',
+                      '&:hover': {
+                        bgcolor: '#2b2d30',
+                        border: '2px solid #2e7d32'
+                      },
+                      transition: 'all 0.2s ease'
+                    }}
+                    onClick={() => setSelectedSuggestionIndex(index)}
+                  >
+                    <Typography variant="body2" style={{ 
+                      color: selectedSuggestionIndex === index ? '#fff' : '#d4d4d4', 
+                      fontFamily: 'monospace'
+                    }}>
+                      {suggestion}
+                    </Typography>
+                  </Box>
+                ))}
               </div>
             )}
-            {showSuggestionPopup && suggestions && (
+            {showSuggestionPopup && suggestions && Array.isArray(suggestions) && suggestions.length > 0 && (
               <Card style={{
                 ...editorStyles.suggestionPopup,
                 left: `${cursorCoords.x + 50}px`,
-                top: `${cursorCoords.y}px`
+                top: `${cursorCoords.y}px`,
+                width: '400px' // Increased width for better readability
               }}>
                 <CardContent style={editorStyles.suggestionContent}>
                   <Typography variant="subtitle2" gutterBottom>
-                    Suggested next lines:
+                    {isCtrlEnterSuggestion ? "Next line suggestions:" : "Suggested next lines:"}
                   </Typography>
-                  <Typography variant="body2" style={{ color: '#d4d4d4' }}>
-                    {suggestions}
-                  </Typography>
+                  {suggestions.map((suggestion, index) => (
+                    <Box 
+                      key={index} 
+                      sx={{ 
+                        mb: 2, 
+                        p: 1, 
+                        bgcolor: selectedSuggestionIndex === index ? '#2b2d30' : 'transparent',
+                        borderRadius: 1,
+                        cursor: 'pointer',
+                        border: selectedSuggestionIndex === index ? '2px solid #2e7d32' : '2px solid transparent',
+                        '&:hover': {
+                          bgcolor: '#2b2d30',
+                          border: '2px solid #2e7d32'
+                        },
+                        transition: 'all 0.2s ease'
+                      }}
+                      onClick={() => setSelectedSuggestionIndex(index)}
+                    >
+                      <Typography variant="body2" style={{ 
+                        color: selectedSuggestionIndex === index ? '#fff' : '#d4d4d4', 
+                        fontFamily: 'monospace'
+                      }}>
+                        {suggestion}
+                      </Typography>
+                    </Box>
+                  ))}
                 </CardContent>
                 <CardActions style={editorStyles.suggestionActions}>
                   <Button
@@ -539,7 +666,8 @@ export const CodeEditor = () => {
               <Card style={{
                 ...editorStyles.errorPopup,
                 left: `${cursorCoords.x + 50}px`,
-                top: `${cursorCoords.y}px`
+                top: `${cursorCoords.y}px`,
+                width: '400px' // Increased width for multiple suggestions
               }}>
                 <CardContent style={editorStyles.suggestionContent}>
                   <Typography variant="subtitle2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -549,12 +677,32 @@ export const CodeEditor = () => {
                   <Typography variant="body2" color="error" gutterBottom>
                     {error.message}
                   </Typography>
-                  <Typography variant="subtitle2" gutterBottom>
-                    Suggested Correction:
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#2e7d32', bgcolor: '#f1f8e9', p: 1, borderRadius: 1 }}>
-                    {error.correction}
-                  </Typography>
+                  
+                  {error.corrections && error.corrections.length > 0 && (
+                    <>
+                      <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                        Suggested Corrections:
+                      </Typography>
+                      
+                      {error.corrections.map((correction, index) => (
+                        <Box key={index} sx={{ mb: 2, p: 1, bgcolor: '#f1f8e9', borderRadius: 1, position: 'relative' }}>
+                          <Typography variant="body2" sx={{ color: '#2e7d32', pr: 8 }}>
+                            {correction}
+                          </Typography>
+                          <Button
+                            size="small"
+                            startIcon={<CheckIcon />}
+                            onClick={() => handleAcceptErrorSuggestion(index)}
+                            color="success"
+                            sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)' }}
+                          >
+                            Accept
+                          </Button>
+                        </Box>
+                      ))}
+                    </>
+                  )}
+                  
                   {error.nextLines && (
                     <>
                       <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
@@ -573,15 +721,7 @@ export const CodeEditor = () => {
                     onClick={() => setError(null)}
                     color="error"
                   >
-                    Decline
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<CheckIcon />}
-                    onClick={handleAcceptErrorSuggestion}
-                    color="success"
-                  >
-                    Accept
+                    Dismiss
                   </Button>
                 </CardActions>
               </Card>
