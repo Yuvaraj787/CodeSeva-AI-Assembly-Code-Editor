@@ -375,16 +375,13 @@ export const CodeEditor = () => {
     },
     errorPopup: {
       position: 'absolute',
-      left: '55px',
-      padding: '6px 12px',
-      backgroundColor: '#ff000020',
-      color: '#ff6b6b',
+      zIndex: 2,
+      width: '320px',
+      backgroundColor: '#252526',
+      color: '#d4d4d4',
+      borderRadius: '6px',
+      boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
       borderLeft: '3px solid rgb(132, 3, 3)',
-      fontSize: '14px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '6px',
-      zIndex: 3,
     },
     errorIcon: {
       fontSize: '18px',
@@ -469,11 +466,6 @@ export const CodeEditor = () => {
                 <SaveIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Run">
-              <IconButton onClick={() => console.log('Running code...')} color="success">
-                <PlayArrowIcon />
-              </IconButton>
-            </Tooltip>
           </Box>
         </Toolbar>
       </AppBar>
@@ -544,46 +536,55 @@ export const CodeEditor = () => {
               </Card>
             )}
             {error && (
-              <div style={{
-                ...styles.errorContainer,
-                top: `${(error.line + 1) * 21}px`, // Position based on line number
-                right: '20px'
+              <Card style={{
+                ...editorStyles.errorPopup,
+                left: `${cursorCoords.x + 50}px`,
+                top: `${cursorCoords.y}px`
               }}>
-                <div style={styles.errorMessage}>
-                  <ErrorOutlineIcon style={{ fontSize: 16, marginRight: 8, color: '#ff6b6b' }} />
-                  {error.message}
-                </div>
-                <div style={styles.suggestionBox}>
-                  <div style={styles.suggestionTitle}>Suggested Correction:</div>
-                  <div style={styles.suggestionCode}>{error.correction}</div>
+                <CardContent style={editorStyles.suggestionContent}>
+                  <Typography variant="subtitle2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <ErrorOutlineIcon style={{ color: '#ff6b6b' }} />
+                    Error:
+                  </Typography>
+                  <Typography variant="body2" color="error" gutterBottom>
+                    {error.message}
+                  </Typography>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Suggested Correction:
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#2e7d32', bgcolor: '#f1f8e9', p: 1, borderRadius: 1 }}>
+                    {error.correction}
+                  </Typography>
                   {error.nextLines && (
                     <>
-                      <div style={styles.suggestionTitle}>Next Lines:</div>
-                      <div style={styles.suggestionCode}>{error.nextLines}</div>
+                      <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                        Next Lines:
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#2e7d32', bgcolor: '#f1f8e9', p: 1, borderRadius: 1 }}>
+                        {error.nextLines}
+                      </Typography>
                     </>
                   )}
-                  <div style={styles.suggestionActions}>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color="primary"
-                      onClick={handleAcceptErrorSuggestion}
-                      startIcon={<CheckIcon />}
-                    >
-                      Accept
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      color="error"
-                      onClick={() => setError(null)}
-                      startIcon={<CloseIcon />}
-                    >
-                      Decline
-                    </Button>
-                  </div>
-                </div>
-              </div>
+                </CardContent>
+                <CardActions style={editorStyles.suggestionActions}>
+                  <Button
+                    size="small"
+                    startIcon={<CloseIcon />}
+                    onClick={() => setError(null)}
+                    color="error"
+                  >
+                    Decline
+                  </Button>
+                  <Button
+                    size="small"
+                    startIcon={<CheckIcon />}
+                    onClick={handleAcceptErrorSuggestion}
+                    color="success"
+                  >
+                    Accept
+                  </Button>
+                </CardActions>
+              </Card>
             )}
           </div>
         </Paper>
