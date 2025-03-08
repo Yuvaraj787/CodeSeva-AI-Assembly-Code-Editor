@@ -51,7 +51,6 @@ export const useLLM = async (prompt, isErrorCheck = false) => {
         console.log('Returning:', result);
         return result;
       }
-
       // Parse error response
       const errorMatch = aiText.match(/ERROR: (.*?)(?:\n|$)/).toString();
       const correctMatch = aiText.match(/CORRECT: (.*?)(?:\n|$)/);
