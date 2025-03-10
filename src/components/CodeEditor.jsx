@@ -20,9 +20,9 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SaveIcon from '@mui/icons-material/Save';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import CheckIcon from '@mui/icons-material/Check';
+import { useLLM } from '../assets/bin/others/llmService';
 import CloseIcon from '@mui/icons-material/Close';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { useLLM } from '../services/llmService';
 
 const architectures = ['8051', 'ARM', 'x86'];
 
