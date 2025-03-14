@@ -24,7 +24,7 @@ import { useLLM } from '../assets/bin/others/llmService';
 import CloseIcon from '@mui/icons-material/Close';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
-const architectures = ['8051', 'ARM', 'x86'];
+const architectures = ['8051', 'ARM', '8085'];
 
 export const CodeEditor = () => {
   const [code, setCode] = useState('');
@@ -80,11 +80,17 @@ export const CodeEditor = () => {
     var nextLines = await useLLM(`Given the following ${architecture} assembly code:
 ${previousLinesString}
 
-Provide 3 DIFFERENT possible next lines. Each suggestion should be a single line of assembly code.
-Format your response exactly like this, with exactly 3 suggestions:
-SUGGESTION_1: [first line]
-SUGGESTION_2: [second line]
-SUGGESTION_3: [third line]
+Provide 3 DIFFERENT suggestions, where each suggestion contains TWO lines of assembly code.
+Format your response exactly like this, with exactly 3 suggestions of 2 lines each:
+SUGGESTION_1:
+[first line of first suggestion]
+[second line of first suggestion]
+SUGGESTION_2:
+[first line of second suggestion]
+[second line of second suggestion]
+SUGGESTION_3:
+[first line of third suggestion]
+[second line of third suggestion]
 
 Make each suggestion unique and valid for ${architecture} architecture.`);
     
@@ -93,21 +99,23 @@ Make each suggestion unique and valid for ${architecture} architecture.`);
     const lines = nextLines.split('\n');
     
     for (let i = 1; i <= 3; i++) {
-      const match = lines.find(line => line.startsWith(`SUGGESTION_${i}:`));
-      if (match) {
-        const suggestion = match.substring(`SUGGESTION_${i}:`.length).trim();
-        if (suggestion) {
-          suggestions.push(suggestion);
+      const startIndex = lines.findIndex(line => line.trim() === `SUGGESTION_${i}:`);
+      if (startIndex !== -1 && startIndex + 2 <= lines.length) {
+        const firstLine = lines[startIndex + 1]?.trim();
+        const secondLine = lines[startIndex + 2]?.trim();
+        if (firstLine && secondLine) {
+          suggestions.push([firstLine, secondLine]);
         }
       }
     }
     
-    // If we got valid suggestions, get comments for each
+    // If we got valid suggestions, get comments for each line
     if (suggestions.length > 0) {
       const suggestionsWithComments = await Promise.all(
-        suggestions.map(async (line) => {
-          const comment = await provideCommentToLine(line);
-          return `${line}   ;${comment}`;
+        suggestions.map(async ([line1, line2]) => {
+          const comment1 = await provideCommentToLine(line1);
+          const comment2 = await provideCommentToLine(line2);
+          return `${line1}   ;${comment1}${line2}   ;${comment2}`;
         })
       );
       return suggestionsWithComments;
@@ -129,7 +137,7 @@ Make each suggestion unique and valid for ${architecture} architecture.`);
       
       // Insert suggestion at current position with proper line break
       const newCode = code.substring(0, currentPosition) + 
-                     '\n' + cleanedSuggestion + 
+                    cleanedSuggestion + 
                      code.substring(currentPosition);
       
       setCode(newCode);
@@ -138,7 +146,7 @@ Make each suggestion unique and valid for ${architecture} architecture.`);
       setIsCtrlEnterSuggestion(false);
       setSelectedSuggestionIndex(0);
 
-      // Move cursor to the start of the next line
+      // Move cursor to the start of the next line after the suggestions
       setTimeout(() => {
         const newPosition = currentPosition + cleanedSuggestion.length + 2; // +2 for the added newline
         textareaRef.current.selectionStart = newPosition;
@@ -199,11 +207,13 @@ Make each suggestion unique and valid for ${architecture} architecture.`);
       lines[currentLineNumber] = currentLineContent + "   ;" + customString;
       
       // Join all lines back together
-      const newCode = lines.join('\n');
+      //dont join emmpty lines
+      const newCode = lines.filter(line => line.trim()).join('\n');
       setCode(newCode);
       
       // Add a new line after the current line
-      const newPosition = newCode.split('\n').slice(0, currentLineNumber + 1).join('\n').length;
+      const newPosition = newCode.split('\n').filter(line => line.trim()).length - 1;
+      console.log(newPosition);
       const finalCode = newCode.substring(0, newPosition)  + newCode.substring(newPosition);
       setCode(finalCode);
       
@@ -242,7 +252,7 @@ Make each suggestion unique and valid for ${architecture} architecture.`);
       // Get the current line content before Enter is pressed
       const lines = code.split('\n');
       const currentPosition = e.target.selectionStart;
-      const currentLineNumber = code.substring(0, currentPosition).split('\n').length - 1;
+      const currentLineNumber = code.split('\n').filter(line => line.trim()).length - 1;
       const currentLineContent = lines[currentLineNumber];
 
       // Call the handler after the Enter key event is processed
@@ -256,7 +266,7 @@ Make each suggestion unique and valid for ${architecture} architecture.`);
     // Get all lines and current cursor position
     const lines = code.split('\n');
     const currentPosition = textareaRef.current.selectionStart;
-    const currentLineNumber = code.substring(0, currentPosition).split('\n').length - 1;
+    const currentLineNumber = code.split('\n').filter(line => line.trim()).length - 1;
     
     if (currentLineNumber >= 0 && currentLineNumber < lines.length) {
       // Get suggestions for next lines without adding comments
