@@ -71,58 +71,32 @@ export const CodeEditor = () => {
   };
 
   const provideCommentToLine = async(lineContext) => {
-    var comment = await useLLM(`Provide a comment for the following line in ${architecture} language. : `+ lineContext + " . The response should be short containing only comment no other explanation")
+    var comment = await useLLM({type:"comment", architecture, code: lineContext})
     return comment;
   }
 
   const nextLinesSuggest = async (previousLines) => {
     const previousLinesString = previousLines.join("\n");
-    var nextLines = await useLLM(`Given the following ${architecture} assembly code:
-${previousLinesString}
+    console.log(previousLinesString)
+    var nextLines = await useLLM({type:"next_line_prediction", architecture, code: previousLinesString});
 
-Provide 3 DIFFERENT suggestions, where each suggestion contains TWO lines of assembly code.
-Format your response exactly like this, with exactly 3 suggestions of 2 lines each:
-SUGGESTION_1:
-[first line of first suggestion]
-[second line of first suggestion]
-SUGGESTION_2:
-[first line of second suggestion]
-[second line of second suggestion]
-SUGGESTION_3:
-[first line of third suggestion]
-[second line of third suggestion]
-
-Make each suggestion unique and valid for ${architecture} architecture.`);
-    
     // Parse the suggestions
     const suggestions = [];
     const lines = nextLines.split('\n');
-    
+
     for (let i = 1; i <= 3; i++) {
-      const startIndex = lines.findIndex(line => line.trim() === `SUGGESTION_${i}:`);
-      if (startIndex !== -1 && startIndex + 2 <= lines.length) {
-        const firstLine = lines[startIndex + 1]?.trim();
-        const secondLine = lines[startIndex + 2]?.trim();
-        if (firstLine && secondLine) {
-          suggestions.push([firstLine, secondLine]);
+        const startIndex = lines.findIndex(line => line.startsWith(`SUGGESTION_${i}:`));
+        if (startIndex !== -1 && startIndex + 2 < lines.length) {
+            const suggestion = `${lines[startIndex + 1].trim()}\n${lines[startIndex + 2].trim()}`;
+            suggestions.push(suggestion);
         }
-      }
     }
-    
-    // If we got valid suggestions, get comments for each line
-    if (suggestions.length > 0) {
-      const suggestionsWithComments = await Promise.all(
-        suggestions.map(async ([line1, line2]) => {
-          const comment1 = await provideCommentToLine(line1);
-          const comment2 = await provideCommentToLine(line2);
-          return `${line1}   ;${comment1}${line2}   ;${comment2}`;
-        })
-      );
-      return suggestionsWithComments;
-    }
-    
-    return [];
-  };
+
+    console.log(suggestions)
+
+    return suggestions;
+};
+
 
   const handleAcceptSuggestion = () => {
     if (suggestions && Array.isArray(suggestions) && suggestions.length > 0) {
@@ -164,6 +138,7 @@ Make each suggestion unique and valid for ${architecture} architecture.`);
 
   const checkForErrors = async (lineContent) => {
     const result = await useLLM({
+      type:"error_detection",
       architecture,
       code: lineContent
     }, true);
