@@ -1,0 +1,97 @@
+[
+  {
+    "timestamp": "2025-04-08T21:30:07.205Z",
+    "context": "",
+    "allSuggestions": [
+      "MOV A, #0 ;Example of a valid instruction",
+      "CLR A ;Another valid instruction"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-08T21:30:07.289Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:32:24.765Z",
+    "context": "",
+    "allSuggestions": [
+      "MOV A, #0  ;Example valid instruction",
+      "CLR A       ;Another example valid instruction"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-08T21:32:24.779Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:32:44.434Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-08T21:32:44.445Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:32:47.698Z",
+    "context": "mov p1 ",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-08T21:32:47.705Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:32:50.185Z",
+    "context": "mov p1 , ",
+    "allSuggestions": [
+      "090h"
+    ],
+    "acceptedSuggestion": "090h",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-08T21:32:50.195Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:32:59.894Z",
+    "context": "",
+    "allSuggestions": [
+      "ret"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-08T21:32:59.904Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:34:14.506Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-08T21:34:14.517Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:34:25.042Z",
+    "context": "mov p1 ",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-08T21:34:25.052Z"
+  }
+]

@@ -23,6 +23,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import { useLLM } from '../assets/bin/others/llmService';
 import CloseIcon from '@mui/icons-material/Close';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { getPredictions } from '../services/predictionService';
 
 const architectures = ['8051', 'ARM', '8085'];
 
@@ -35,6 +36,7 @@ export const CodeEditor = () => {
   const [isCtrlEnterSuggestion, setIsCtrlEnterSuggestion] = useState(false);
   const textareaRef = useRef(null);
   const lineNumbersRef = useRef(null);
+  const lastLineRef = useRef(-1);
   const [error, setError] = useState(null);
   const [cursorCoords, setCursorCoords] = useState({ x: 0, y: 0 });
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
@@ -54,20 +56,105 @@ export const CodeEditor = () => {
     return () => textarea.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleEditorChange = (e) => {
+  // Clear suggestions when cursor moves to a different line
+  useEffect(() => {
+    if (cursorPosition !== undefined) {
+      const currentLineIndex = getCurrentLineNumber();
+      // Store this line index and clear suggestions if it changes
+      if (currentLineIndex !== lastLineRef.current) {
+        setSuggestions([]);
+        lastLineRef.current = currentLineIndex;
+      }
+    }
+  }, [cursorPosition]);
+  
+  const getNextWordSuggestions = async (currentText) => {
+    console.log('🔍 getNextWordSuggestions called with:', currentText);
+    
+    try {
+      // Get the current line being typed
+      const lines = currentText.split('\n');
+      const currentLine = lines[lines.length - 1] || '';
+      console.log('📝 Current line:', currentLine);
+      
+      // Split the current line into tokens
+      const tokens = currentLine.split(/\s+/).filter(Boolean);
+      console.log('🔤 Extracted tokens:', tokens);
+      
+      // Get the last 2 tokens for context (for trigram model)
+      const contextTokens = tokens.slice(-2);
+      console.log('🧩 Context tokens for prediction:', contextTokens);
+      
+      // Only try prediction if we have context tokens
+      if (contextTokens.length > 0) {
+        console.log('🐍 Attempting Python model prediction...');
+        
+        // Call the Python service
+        const predictions = await getPredictions(contextTokens, architecture.toLowerCase());
+        console.log('📊 Python prediction results:', predictions);
+        
+        if (predictions && predictions.length > 0) {
+          console.log('✅ Got valid word predictions from Python model');
+          
+          // Format predictions for display
+          const wordSuggestions = predictions.map(pred => ({
+            word: pred[0],
+            score: pred[1]
+          }));
+          
+          console.log('🔄 Word suggestions:', wordSuggestions);
+          return wordSuggestions;
+        }
+      }
+      
+      // Return empty array if no predictions
+      return [];
+    } catch (error) {
+      console.error('💥 Error in getNextWordSuggestions:', error);
+      return [];
+    }
+  };
+
+  const handleEditorChange = async (e) => {
     const value = e.target.value;
     setCode(value);
     setCursorPosition(e.target.selectionStart);
     
-    // Get cursor coordinates
+    // Get cursor coordinates more accurately
     const cursorIndex = e.target.selectionStart;
     const textBeforeCursor = value.substring(0, cursorIndex);
     const lines = textBeforeCursor.split('\n');
+    const currentLineIndex = lines.length - 1;
+    const currentLine = lines[currentLineIndex] || '';
+    
+    // Use textarea's font metrics (assuming monospace font with ~8px character width)
+    const characterWidth = 8; // Approximate character width in pixels
     const lineHeight = 21; // Approximate line height in pixels
-    const y = lines.length * lineHeight;
-    const x = lines[lines.length - 1].length * 8; // Approximate character width
+    
+    // Calculate position (adding the line number column width of 50px)
+    const x = currentLine.length * characterWidth;
+    const y = (currentLineIndex + 1) * lineHeight;
     
     setCursorCoords({ x, y });
+    
+    // Check if we should show word suggestions
+    const lastChar = currentLine[currentLine.length - 1];
+    
+    // Clear any existing suggestions first
+    setSuggestions([]);
+    
+    // Only get suggestions when appropriate
+    if ((lastChar === ' ' || currentLine.length > 2) && !isCtrlEnterSuggestion) {
+      console.log('🔮 Getting word suggestions for current line...');
+      const wordSuggestions = await getNextWordSuggestions(value);
+      
+      if (wordSuggestions && wordSuggestions.length > 0) {
+        // Only get the first suggestion for display as greyed out text
+        const firstSuggestion = wordSuggestions[0].word;
+        setSuggestions([firstSuggestion]);
+        setShowSuggestionPopup(false); // Don't show popup
+      }
+    }
   };
 
   const provideCommentToLine = async(lineContext) => {
@@ -100,6 +187,21 @@ export const CodeEditor = () => {
 
   const handleAcceptSuggestion = () => {
     if (suggestions && Array.isArray(suggestions) && suggestions.length > 0) {
+      // Record feedback with all suggestions
+      const newFeedback = {
+        timestamp: new Date().toISOString(),
+        context: getCurrentLinePrefix(),
+        allSuggestions: suggestions,
+        acceptedSuggestion: suggestions[selectedSuggestionIndex],
+        selectedSuggestionIndex: selectedSuggestionIndex,
+        model: architecture,
+        action: "accepted",
+        suggestionType: isCtrlEnterSuggestion ? "multiline" : "word"
+      };
+      
+      // Store this feedback
+      storeFeedback(newFeedback);
+      
       // Get current cursor position
       const currentPosition = textareaRef.current.selectionStart;
       
@@ -131,7 +233,30 @@ export const CodeEditor = () => {
   };
 
   const handleDeclineSuggestion = () => {
-    setSuggestions('');
+    console.log("decline suggestion" , suggestions)
+    // Store all suggestions that were declined
+    if ((suggestions  && suggestions.length > 0) || (error && error.corrections && error.corrections.length > 0)) {
+      //if suggestion is empty assign it to error.corrections
+      var allSuggestions = suggestions;
+      if (suggestions.length === 0) {
+        allSuggestions = error.corrections;
+      }
+      const newFeedback = {
+        timestamp: new Date().toISOString(),
+        context: getCurrentLinePrefix(), // What the user was typing
+        allSuggestions: allSuggestions, // All available suggestions
+        selectedSuggestion: selectedSuggestionIndex, // Which one was selected in UI
+        model: architecture, // Which model made the suggestions
+        action: "dismissed"
+      };
+      console.log(newFeedback)
+      // Store this feedback using your preferred method
+      storeFeedback(newFeedback);
+    }
+    
+    // Existing code
+    setSuggestions([]);
+    setError(null);
     setShowSuggestionPopup(false);
     setIsCtrlEnterSuggestion(false);
   };
@@ -207,18 +332,52 @@ export const CodeEditor = () => {
   const handleKeyDown = (e) => {
     if (e.key === 'Tab') {
       e.preventDefault();
-      const start = e.target.selectionStart;
-      const end = e.target.selectionEnd;
-      const spaces = '  '; // 2 spaces for indentation
       
-      setCode(
-        code.substring(0, start) + spaces + code.substring(end)
-      );
+      // If we have a suggestion, accept it
+      if (suggestions && suggestions.length > 0) {
+        const currentPosition = e.target.selectionStart;
+        const suggestion = suggestions[0];
+        
+        // Record feedback with all suggestions
+        const newFeedback = {
+          timestamp: new Date().toISOString(),
+          context: getCurrentLinePrefix(),
+          allSuggestions: suggestions,
+          acceptedSuggestion: suggestion,
+          selectedSuggestionIndex: 0,
+          model: architecture,
+          action: "accepted"
+        };
+        
+        // Store this feedback
+        storeFeedback(newFeedback);
+        
+        // Insert the suggestion at the current cursor position
+        const newCode = code.substring(0, currentPosition) + suggestion + code.substring(currentPosition);
+        setCode(newCode);
+        
+        // Move cursor after the inserted suggestion
+        setTimeout(() => {
+          e.target.selectionStart = e.target.selectionEnd = currentPosition + suggestion.length;
+        }, 0);
+        
+        // Clear suggestions
+        setSuggestions([]);
+      } else {
+        // Normal tab behavior - insert spaces
+        const start = e.target.selectionStart;
+        const end = e.target.selectionEnd;
+        const spaces = '  '; // 2 spaces for indentation
+        
+        setCode(
+          code.substring(0, start) + spaces + code.substring(end)
+        );
 
-      // Move cursor after indentation
-      setTimeout(() => {
-        e.target.selectionStart = e.target.selectionEnd = start + spaces.length;
-      }, 0);
+        // Move cursor after indentation
+        setTimeout(() => {
+          e.target.selectionStart = e.target.selectionEnd = start + spaces.length;
+        }, 0);
+      }
     } else if (e.key === 'Enter' && e.ctrlKey) {
       // Handle Ctrl+Enter for next line suggestions without comments
       e.preventDefault();
@@ -234,6 +393,11 @@ export const CodeEditor = () => {
       setTimeout(() => {
         handleEnterPress(currentLineContent);
       }, 0);
+    } else {
+      // Clear word completion suggestion on other key presses
+      if (!e.ctrlKey && e.key !== 'Shift' && e.key !== 'Alt' && e.key !== 'Meta') {
+        setSuggestions([]);
+      }
     }
   };
 
@@ -255,9 +419,14 @@ export const CodeEditor = () => {
       if (textarea) {
         const textBeforeCursor = code.substring(0, currentPosition);
         const lines = textBeforeCursor.split('\n');
-        const lineHeight = 21; // Approximate line height in pixels
-        const y = lines.length * lineHeight;
-        const x = lines[lines.length - 1].length * 8; // Approximate character width
+        const currentLineIndex = lines.length - 1;
+        const currentLine = lines[currentLineIndex] || '';
+        
+        // Use consistent calculations with handleEditorChange
+        const characterWidth = 8;
+        const lineHeight = 21;
+        const x = currentLine.length * characterWidth;
+        const y = (currentLineIndex + 1) * lineHeight;
         
         setCursorCoords({ x, y });
       }
@@ -298,8 +467,69 @@ export const CodeEditor = () => {
     return lines.map((_, i) => i + 1).join('\n');
   };
 
-  // Function to format the code with colored comments
+  // Add a new helper function to format text with a suggestion at cursor position
+  const formatTextWithSuggestion = () => {
+    if (!textareaRef.current || !suggestions || suggestions.length === 0 || isCtrlEnterSuggestion) {
+      return formatCodeWithComments(code);
+    }
+    
+    const cursorPos = textareaRef.current.selectionStart;
+    const beforeCursor = code.substring(0, cursorPos);
+    const afterCursor = code.substring(cursorPos);
+    
+    // Find current line number and position within line
+    const linesBeforeCursor = beforeCursor.split('\n');
+    const currentLineIndex = linesBeforeCursor.length - 1;
+    const currentLineBeforeCursor = linesBeforeCursor[currentLineIndex] || '';
+    
+    // Split text into lines
+    const allLines = code.split('\n');
+    
+    // Create an array of formatted lines
+    return allLines.map((line, index) => {
+      // If this is the line with the cursor
+      if (index === currentLineIndex) {
+        const parts = line.split(';');
+        const lineContent = parts[0];
+        const comment = parts.length > 1 ? ';' + parts.slice(1).join(';') : '';
+        
+        // Get position within the line
+        const cursorPosInLine = currentLineBeforeCursor.length;
+        
+        // Split the line content at cursor position
+        const beforeCursorInLine = lineContent.substring(0, cursorPosInLine);
+        const afterCursorInLine = lineContent.substring(cursorPosInLine);
+        
+        return (
+          <div key={index} style={{ display: 'flex' }}>
+            <span>
+              {beforeCursorInLine}
+              <span style={{ color: '#8a8a8a', opacity: 0.7 }}>{suggestions[0]}</span>
+              {afterCursorInLine}
+            </span>
+            {comment && <span style={{ color: '#6A9955' }}>{comment}</span>}
+          </div>
+        );
+      } else {
+        // Normal formatting for other lines
+        const parts = line.split(';');
+        if (parts.length > 1) {
+          return (
+            <div key={index} style={{ display: 'flex' }}>
+              <span>{parts[0]}</span>
+              <span style={{ color: '#6A9955' }}>{';' + parts.slice(1).join(';')}</span>
+            </div>
+          );
+        }
+        return <div key={index}>{line}</div>;
+      }
+    });
+  };
+
+  // Update the formatCodeWithComments function to handle arrays of lines
   const formatCodeWithComments = (text) => {
+    if (!text) return null;
+    
     return text.split('\n').map((line, index) => {
       const parts = line.split(';');
       if (parts.length > 1) {
@@ -488,6 +718,53 @@ export const CodeEditor = () => {
     }
   };
 
+  const getCurrentLinePrefix = () => {
+    if (!textareaRef.current) return '';
+    
+    const cursorPos = textareaRef.current.selectionStart;
+    const text = textareaRef.current.value;
+    
+    // Find the start of the current line
+    let lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
+    if (lineStart < 0) lineStart = 0;
+    
+    // Get text from start of line to cursor position
+    const prefix = text.substring(lineStart, cursorPos);
+    return prefix;
+  };
+
+  const getCurrentLineNumber = () => {
+    if (!textareaRef.current) return 0;
+    
+    const cursorPos = textareaRef.current.selectionStart;
+    const text = textareaRef.current.value.substring(0, cursorPos);
+    
+    // Count newlines to determine line number
+    return text.split('\n').length - 1;
+  };
+
+  // Helper function to store feedback (choose one implementation approach)
+  const storeFeedback = (feedback) => {
+    // OPTION 1: Store in localStorage
+    console.log(feedback)
+    // try {
+    //   const storedFeedback = JSON.parse(localStorage.getItem('suggestionFeedback') || '[]');
+    //   localStorage.setItem('suggestionFeedback', JSON.stringify([...storedFeedback, feedback]));
+    //   console.log('Feedback stored locally:', feedback);
+    // } catch (error) {
+    //   console.error('Error storing feedback locally:', error);
+    // }
+    
+    // OPTION 2: Send to backend API (if you implement this endpoint)
+    fetch('http://localhost:3001/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(feedback)
+    }).catch(err => console.error('Error sending feedback to server:', err));
+    
+    // You could implement both for redundancy, or choose just one
+  };
+
   return (
     <Box sx={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column' }}>
       <AppBar position="static" color="default" elevation={1}>
@@ -510,9 +787,9 @@ export const CodeEditor = () => {
             </Select>
           </FormControl>
 
-          <Tooltip title="Press Enter to add comments to current line. Press Ctrl+Enter to get next line suggestions.">
+          <Tooltip title="Press Tab to accept word suggestions. Press Enter to add comments to current line. Press Ctrl+Enter to get next line suggestions.">
             <Typography variant="caption" sx={{ color: 'text.secondary', mr: 2 }}>
-              Ctrl+Enter for next line suggestions
+              Tab to accept word, Ctrl+Enter for next lines
             </Typography>
           </Tooltip>
 
@@ -552,53 +829,20 @@ export const CodeEditor = () => {
               wrap="off"
             />
             <div style={editorStyles.codeContainer}>
-              {formatCodeWithComments(code)}
+              {formatTextWithSuggestion()}
             </div>
-            {suggestions && (
-              <div 
-                style={{
-                  ...editorStyles.suggestions,
-                  marginTop: getSuggestionsOffset(),
-                }}
-              >
-                {suggestions.map((suggestion, index) => (
-                  <Box 
-                    key={index} 
-                    sx={{ 
-                      mb: 2, 
-                      p: 1, 
-                      bgcolor: selectedSuggestionIndex === index ? '#2b2d30' : 'transparent',
-                      borderRadius: 1,
-                      cursor: 'pointer',
-                      border: selectedSuggestionIndex === index ? '2px solid #2e7d32' : '2px solid transparent',
-                      '&:hover': {
-                        bgcolor: '#2b2d30',
-                        border: '2px solid #2e7d32'
-                      },
-                      transition: 'all 0.2s ease'
-                    }}
-                    onClick={() => setSelectedSuggestionIndex(index)}
-                  >
-                    <Typography variant="body2" style={{ 
-                      color: selectedSuggestionIndex === index ? '#fff' : '#d4d4d4', 
-                      fontFamily: 'monospace'
-                    }}>
-                      {suggestion}
-                    </Typography>
-                  </Box>
-                ))}
-              </div>
-            )}
-            {showSuggestionPopup && suggestions && Array.isArray(suggestions) && suggestions.length > 0 && (
+            
+            {/* Keep the Ctrl+Enter multi-line suggestion popup */}
+            {isCtrlEnterSuggestion && showSuggestionPopup && suggestions && suggestions.length > 0 && (
               <Card style={{
                 ...editorStyles.suggestionPopup,
                 left: `${cursorCoords.x + 50}px`,
                 top: `${cursorCoords.y}px`,
-                width: '400px' // Increased width for better readability
+                width: '400px' 
               }}>
                 <CardContent style={editorStyles.suggestionContent}>
                   <Typography variant="subtitle2" gutterBottom>
-                    {isCtrlEnterSuggestion ? "Next line suggestions:" : "Suggested next lines:"}
+                    Next line suggestions:
                   </Typography>
                   {suggestions.map((suggestion, index) => (
                     <Box 
@@ -703,7 +947,7 @@ export const CodeEditor = () => {
                   <Button
                     size="small"
                     startIcon={<CloseIcon />}
-                    onClick={() => setError(null)}
+                    onClick={handleDeclineSuggestion}
                     color="error"
                   >
                     Dismiss
