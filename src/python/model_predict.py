@@ -67,6 +67,32 @@ try:
     # Windows command line often has issues with quotes
     input_json = fix_json_quotes(input_arg)
     
+    # Check if any context element ends with a comma
+    # If found, split it into separate elements
+    if input_json and ',' in input_json:
+        try:
+            data = json.loads(input_json)
+            if 'context' in data and isinstance(data['context'], list):
+                new_context = []
+                for item in data['context']:
+                    if ',' in item:
+                        # Split on comma and handle any text after it
+                        parts = item.split(',')
+                        new_context.append(parts[0])  # Add text before comma
+                        new_context.append(',')  # Add comma as separate item
+                        if len(parts) > 1 and parts[1].strip():  # If there's text after comma
+                            new_context.append(parts[1].strip())  # Add it as new item
+                    else:
+                        new_context.append(item)
+                        
+                # Update the context in the input JSON
+                data['context'] = new_context
+                input_json = json.dumps(data)
+        except json.JSONDecodeError as e:
+            print(f"Error parsing JSON: {e}", file=sys.stderr)
+            print(f"Input was: {input_json}", file=sys.stderr)
+            print(json.dumps({"success": False, "error": f"JSON decode error: {str(e)}"}))
+            sys.exit(1)
     # Debug the processed input
     print(f"Processed input: {input_json}", file=sys.stderr)
     

@@ -1,7 +1,7 @@
-export const useLLM = async (prompt, isErrorCheck = false) => {
+export const useLLM = async (prompt, isErrorCheck = false, code) => {
   try {
-    const hugginFaceKey = "AIzaSyBi7INxXx7iKCL9RXNIC4tCPQCT5pgQ1ds";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${hugginFaceKey}`;
+    const deepseekKey = "sk-f9d9a1daf0e74305b60c11b2457f801d"; // Replace with your DeepSeek API key
+    const url = "https://api.deepseek.com/v1/chat/completions";
     let finalPrompt = prompt;
     if (prompt.type == "next_line_prediction") {
       finalPrompt = `Given the following ${prompt.architecture} assembly code:
@@ -24,7 +24,7 @@ SUGGESTION_3:
 
 Make each suggestion unique and valid for ${prompt.architecture} architecture.`
     } else if (prompt.type == "comment") {
-      finalPrompt = `Provide a comment for the following line in ${prompt.architecture} language. : `+ lineContext + " . The response should be short containing only comment no other explanation"
+      finalPrompt = `Describe what this line is doing in ${prompt.architecture} language. : ` + prompt.code + " . The response should be short containing only comment no other explanation. Eg: input : mov a, #07h | output: Set value of a to 07"
     }
     else if (prompt.type == "error_detection") {
       finalPrompt = `You are an assembly language syntax validator for ${prompt.architecture} architecture.
@@ -52,28 +52,33 @@ Make each suggestion unique and valid for ${prompt.architecture} architecture.`
       Be very strict about syntax rules for ${prompt.architecture} architecture.`;
     }
 
-
-
     const payload = {
-      contents: [{
-        parts: [{
-          text: finalPrompt
-        }]
-      }]
+      model: "deepseek-chat",
+      messages: [
+        {
+          role: "user",
+          content: finalPrompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000
     };
 
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${deepseekKey}`
+      },
       body: JSON.stringify(payload),
     });
 
     const data = await response.json();
-    if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
+    if (!data.choices || !data.choices[0]?.message?.content) {
       throw new Error("Invalid response from LLM");
     }
 
-    let aiText = data.candidates[0].content.parts[0].text;
+    let aiText = data.choices[0].message.content;
 
     if (isErrorCheck) {
       const isValid = aiText.trim().toUpperCase() === 'VALID';
@@ -109,7 +114,7 @@ Make each suggestion unique and valid for ${prompt.architecture} architecture.`
     console.log('Returning:', aiText);
     return aiText;
   } catch (e) {
-    console.log("Error:", e);
+    console.log("reason Error: ", e.message);
     const result = isErrorCheck ? { isValid: false, message: "Error checking code" } : "Model ERROR";
     console.log('Returning:', result);
     return result;

@@ -93,5 +93,53 @@
     "model": "8051",
     "action": "accepted",
     "serverTimestamp": "2025-04-08T21:34:25.052Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:43:40.609Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-08T21:43:40.624Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:43:43.860Z",
+    "context": "mov p1 ",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-08T21:43:43.864Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:43:46.611Z",
+    "context": "mov p1 , ",
+    "allSuggestions": [
+      "090h"
+    ],
+    "acceptedSuggestion": "090h",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-08T21:43:46.621Z"
+  },
+  {
+    "timestamp": "2025-04-08T21:43:50.963Z",
+    "context": "",
+    "allSuggestions": [
+      "mov p1, #090h",
+      "mov p1, 090h ; Although this might assemble depending on the assembler, it is not strictly correct 8051 syntax.  The # explicitly indicates immediate addressing which is clearer and more portable."
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-08T21:43:50.968Z"
   }
 ]
