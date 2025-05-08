@@ -1033,5 +1033,113 @@
     "model": "8051",
     "action": "dismissed",
     "serverTimestamp": "2025-04-14T12:04:17.627Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:49:22.761Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:49:22.809Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:49:25.361Z",
+    "context": "mov p1",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:49:25.368Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:49:27.606Z",
+    "context": "mov p1,",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:49:27.612Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:49:30.210Z",
+    "context": "mov p1,#",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:49:30.256Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:50:03.271Z",
+    "context": "",
+    "allSuggestions": [
+      "MOV A, #00h",
+      "NOP"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-14T12:50:03.286Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:50:06.536Z",
+    "context": "",
+    "allSuggestions": [
+      "Replace \"kfskjdjs\" with a valid 8051 instruction (e.g., \"MOV A, #00h\")",
+      "Replace \"kfskjdjs\" with a valid 8051 directive (e.g., \"ORG 0000h\")"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-14T12:50:06.541Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:50:12.483Z",
+    "context": "mov p1,#00H",
+    "allSuggestions": [
+      "MOV A, #0",
+      "NOP"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-14T12:50:12.494Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:51:16.534Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:51:16.586Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:51:19.014Z",
+    "context": "mov p1",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:51:19.028Z"
   }
 ]
