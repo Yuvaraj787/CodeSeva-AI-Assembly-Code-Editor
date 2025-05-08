@@ -15,7 +15,7 @@ async function queryMistral(data) {
 
 async function querySantaCoder(data) {
   const response = await fetch(
-    "https://router.huggingface.co/hf-inference/models/skdhanush/santacoder",
+    "https://router.huggingface.co/hf-inference/models/skdhanush/codeT5",
     {
       headers: {
         Authorization: "Bearer hf_zdIzkmmsdasxINxXx7immmRXCPQCT5pgQ1mns",

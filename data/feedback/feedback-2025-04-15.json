@@ -1,0 +1,629 @@
+[
+  {
+    "timestamp": "2025-04-15T04:19:11.253Z",
+    "context": "mov r1, #",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T04:19:11.285Z"
+  },
+  {
+    "timestamp": "2025-04-15T04:19:37.982Z",
+    "context": "",
+    "allSuggestions": [
+      "mov a, r1\nadd a, #10H",
+      "inc r1\ncjne r1, #05H, $",
+      "mov r0, #20H\nmov @r0, r1"
+    ],
+    "acceptedSuggestion": "mov a, r1\nadd a, #10H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-04-15T04:19:37.996Z"
+  },
+  {
+    "timestamp": "2025-04-15T04:32:43.566Z",
+    "context": "",
+    "allSuggestions": [
+      "here1"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T04:32:43.629Z"
+  },
+  {
+    "timestamp": "2025-04-15T04:32:57.110Z",
+    "context": "",
+    "allSuggestions": [
+      "here1"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T04:32:57.138Z"
+  },
+  {
+    "timestamp": "2025-04-15T04:46:54.903Z",
+    "context": "mov a",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T04:46:54.958Z"
+  },
+  {
+    "timestamp": "2025-04-15T04:46:56.881Z",
+    "context": "mov a,",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T04:46:56.909Z"
+  },
+  {
+    "timestamp": "2025-04-15T04:46:59.849Z",
+    "context": "mov a,#",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T04:46:59.901Z"
+  },
+  {
+    "timestamp": "2025-04-15T04:47:22.752Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T04:47:22.802Z"
+  },
+  {
+    "timestamp": "2025-04-15T04:47:28.041Z",
+    "context": "org 00",
+    "allSuggestions": [
+      "00h"
+    ],
+    "acceptedSuggestion": "00h",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T04:47:28.105Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:06:01.023Z",
+    "context": "",
+    "allSuggestions": [
+      "here1"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:06:01.054Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:09:37.717Z",
+    "context": "",
+    "allSuggestions": [
+      "[mov a, r2]"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:09:37.757Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:19:02.015Z",
+    "context": "",
+    "allSuggestions": [
+      "MOV TH0, #0FFH",
+      "MOV TH0, #0FFH ; CPL P1.5"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:19:02.030Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:20:23.175Z",
+    "context": "  ",
+    "allSuggestions": [
+      "MOV"
+    ],
+    "acceptedSuggestion": "MOV",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:20:23.228Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:20:36.520Z",
+    "context": "      SJMP ",
+    "allSuggestions": [
+      "HERE"
+    ],
+    "acceptedSuggestion": "HERE",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:20:36.579Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:22:32.231Z",
+    "context": "",
+    "allSuggestions": [
+      "mov r3, #0AH\nxrl a, r3",
+      "jnz LABEL\ninc r2",
+      "cjne a, #00H, SKIP\nmov r0, a"
+    ],
+    "acceptedSuggestion": "mov r3, #0AH\nxrl a, r3",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-04-15T05:22:32.247Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:23:21.623Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:23:21.676Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:23:23.365Z",
+    "context": "mov p1",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:23:23.371Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:23:26.784Z",
+    "context": "mov p1, ",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:23:26.817Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:23:28.515Z",
+    "context": "mov p1, #",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:23:28.522Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:34:26.604Z",
+    "context": "mvi a,",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:34:26.672Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:34:27.999Z",
+    "context": "mvi a,#",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:34:28.029Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:34:50.274Z",
+    "context": "",
+    "allSuggestions": [
+      "mov a, #00H",
+      "clr a"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8085",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:34:50.283Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:36:08.957Z",
+    "context": "",
+    "allSuggestions": [
+      "add b",
+      "add a"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8085",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:36:08.982Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:38:25.812Z",
+    "context": "",
+    "allSuggestions": [
+      "mov b,a\nhlt",
+      "jnc label\nlabel: nop",
+      "sta 4000H\ninr a"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8085",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:38:25.863Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:38:49.167Z",
+    "context": "",
+    "allSuggestions": [
+      "jnz label\nhlt",
+      "sta 4000H\ninr a",
+      "add c\nmov b,a"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8085",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:38:49.233Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:39:06.823Z",
+    "context": "",
+    "allSuggestions": [
+      "mov b,a\nsta 2050H",
+      "jnc label\nhlt",
+      "add c\ninx h"
+    ],
+    "acceptedSuggestion": "mov b,a\nsta 2050H",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-04-15T05:39:06.880Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:45:02.267Z",
+    "context": "  ",
+    "allSuggestions": [
+      "ADC"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8085",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:45:02.277Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:46:25.364Z",
+    "context": "  DCR ",
+    "allSuggestions": [
+      "C"
+    ],
+    "acceptedSuggestion": "C",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:46:25.416Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:46:27.228Z",
+    "context": "  ",
+    "allSuggestions": [
+      "JNZ"
+    ],
+    "acceptedSuggestion": "JNZ",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:46:27.253Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:46:30.156Z",
+    "context": "  JNZ ",
+    "allSuggestions": [
+      "LOOP"
+    ],
+    "acceptedSuggestion": "LOOP",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:46:30.164Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:47:16.357Z",
+    "context": "",
+    "allSuggestions": [
+      "loop: nop",
+      "loop: ; start of loop"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8085",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:47:16.367Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:47:55.827Z",
+    "context": "  ",
+    "allSuggestions": [
+      "JNZ"
+    ],
+    "acceptedSuggestion": "JNZ",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:47:55.884Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:47:57.416Z",
+    "context": "  JNZ ",
+    "allSuggestions": [
+      "LOOP"
+    ],
+    "acceptedSuggestion": "LOOP",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:47:57.431Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:48:13.593Z",
+    "context": "",
+    "allSuggestions": [
+      "RET"
+    ],
+    "acceptedSuggestion": "RET",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:48:13.643Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:52:26.130Z",
+    "context": "",
+    "allSuggestions": [
+      "DATA1"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8085",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:52:26.155Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:54:18.236Z",
+    "context": "",
+    "allSuggestions": [
+      "DCR"
+    ],
+    "acceptedSuggestion": "DCR",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:54:18.263Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:54:31.062Z",
+    "context": " DCR ",
+    "allSuggestions": [
+      "C"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8085",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T05:54:31.087Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:54:39.894Z",
+    "context": " DCR ",
+    "allSuggestions": [
+      "C"
+    ],
+    "acceptedSuggestion": "C",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:54:40.035Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:54:49.546Z",
+    "context": " JNZ ",
+    "allSuggestions": [
+      "LOOP"
+    ],
+    "acceptedSuggestion": "LOOP",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:54:49.577Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:54:51.103Z",
+    "context": "",
+    "allSuggestions": [
+      "RET"
+    ],
+    "acceptedSuggestion": "RET",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T05:54:51.127Z"
+  },
+  {
+    "timestamp": "2025-04-15T05:55:20.642Z",
+    "context": " ",
+    "allSuggestions": [
+      "JNZ LOOP\nHLT",
+      "MOV A, C\nRLC",
+      "INR C\nJMP LOOP"
+    ],
+    "acceptedSuggestion": "JNZ LOOP\nHLT",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-04-15T05:55:20.713Z"
+  },
+  {
+    "timestamp": "2025-04-15T06:59:31.520Z",
+    "context": "",
+    "allSuggestions": [
+      "JZ"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8085",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T06:59:31.538Z"
+  },
+  {
+    "timestamp": "2025-04-15T07:00:14.125Z",
+    "context": "",
+    "allSuggestions": [
+      "MOV R1, #10",
+      "MVN R1, #10"
+    ],
+    "selectedSuggestion": 0,
+    "model": "ARM",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-15T07:00:14.134Z"
+  },
+  {
+    "timestamp": "2025-04-15T07:02:15.461Z",
+    "context": "MOV R2 ,#20",
+    "allSuggestions": [
+      "ADD R3, R1, R2\nSUB R4, R2, R1",
+      "CMP R1, R2\nBGT label",
+      "LDR R3, [R1]\nSTR R2, [R3]"
+    ],
+    "acceptedSuggestion": "ADD R3, R1, R2\nSUB R4, R2, R1",
+    "selectedSuggestionIndex": 0,
+    "model": "ARM",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-04-15T07:02:15.487Z"
+  },
+  {
+    "timestamp": "2025-04-15T07:04:31.090Z",
+    "context": "",
+    "allSuggestions": [
+      "ADD C\nMOV B,A",
+      "SUB C\nSTA 2050H",
+      "CMP C\nJZ 2050H"
+    ],
+    "acceptedSuggestion": "ADD C\nMOV B,A",
+    "selectedSuggestionIndex": 0,
+    "model": "8085",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-04-15T07:04:31.124Z"
+  },
+  {
+    "timestamp": "2025-04-15T07:07:51.273Z",
+    "context": "MOV A, ",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T07:07:51.283Z"
+  },
+  {
+    "timestamp": "2025-04-15T07:28:58.917Z",
+    "context": "      ",
+    "allSuggestions": [
+      "JNB TF0, HERE\nCLR TF0",
+      "DJNZ R7, HERE\nNOP",
+      "MOV A, TL0\nADD A, #01H"
+    ],
+    "acceptedSuggestion": "JNB TF0, HERE\nCLR TF0",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-04-15T07:28:58.954Z"
+  },
+  {
+    "timestamp": "2025-04-15T07:30:26.480Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T07:30:26.508Z"
+  },
+  {
+    "timestamp": "2025-04-15T07:30:27.985Z",
+    "context": "mov p1",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T07:30:27.997Z"
+  },
+  {
+    "timestamp": "2025-04-15T07:30:29.417Z",
+    "context": "mov p1,",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T07:30:29.442Z"
+  },
+  {
+    "timestamp": "2025-04-15T07:30:30.820Z",
+    "context": "mov p1,#",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-15T07:30:30.854Z"
+  }
+]

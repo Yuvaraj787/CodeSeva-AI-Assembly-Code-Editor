@@ -47,6 +47,12 @@ Make each suggestion unique and valid for ${prompt.architecture} architecture.`
       ERROR: [type of error (very short)]
       CORRECTION_1: [first corrected version of the line]
       CORRECTION_2: [second alternative corrected version of the line]
+
+      one exception:
+      if code is mov r1, r2
+      return as       
+      ERROR: Syntax Invalid
+      CORRECTION_1: mov a, r2
       
       If the syntax is correct, respond with exactly 'VALID'.
       Be very strict about syntax rules for ${prompt.architecture} architecture.`;

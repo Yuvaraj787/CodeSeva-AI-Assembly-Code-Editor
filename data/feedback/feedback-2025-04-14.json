@@ -1033,5 +1033,288 @@
     "model": "8051",
     "action": "dismissed",
     "serverTimestamp": "2025-04-14T12:04:17.627Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:39:31.636Z",
+    "context": "MOV A,@R0",
+    "allSuggestions": [
+      "ADDC A,R5\nMOV @R1,A",
+      "SUBB A,R5\nMOV @R1,A",
+      "XRL A,R5\nMOV @R1,A"
+    ],
+    "acceptedSuggestion": "ADDC A,R5\nMOV @R1,A",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-04-14T12:39:31.693Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:41:54.065Z",
+    "context": "mov a",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:41:54.092Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:41:55.956Z",
+    "context": "mov a,",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:41:55.975Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:41:57.513Z",
+    "context": "mov a,",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:41:57.527Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:41:59.541Z",
+    "context": "mov a,#",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:41:59.607Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:43:41.572Z",
+    "context": "mov r0, ",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "ARM",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T12:43:41.631Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:49:50.709Z",
+    "context": "",
+    "allSuggestions": [
+      "mov r1, #0x00",
+      "mov r1, #0"
+    ],
+    "selectedSuggestion": 0,
+    "model": "ARM",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-14T12:49:50.733Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:53:55.062Z",
+    "context": "mov r2, #09h",
+    "allSuggestions": [
+      "`mov r1, 07h` (immediate addressing)",
+      "`mov r1, 07h` (if 07h is a direct address, but correct syntax would require explicit direct addressing like `mov r1, 07h` if 07h is a direct address)"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-14T12:53:55.075Z"
+  },
+  {
+    "timestamp": "2025-04-14T12:55:24.845Z",
+    "context": "",
+    "allSuggestions": [
+      "ADD A, R2\nMOV R3, A",
+      "SUBB A, R2\nMOV R1, A",
+      "MOV R4, A\nINC R1"
+    ],
+    "acceptedSuggestion": "ADD A, R2\nMOV R3, A",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-04-14T12:55:24.855Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:01:07.714Z",
+    "context": "org ",
+    "allSuggestions": [
+      "00h"
+    ],
+    "acceptedSuggestion": "00h",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:01:07.737Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:01:14.250Z",
+    "context": "",
+    "allSuggestions": [
+      "mov"
+    ],
+    "acceptedSuggestion": "mov",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:01:14.275Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:01:19.639Z",
+    "context": "mov tmod",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:01:19.701Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:01:24.881Z",
+    "context": "mov tmod, ",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:01:24.902Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:06:02.644Z",
+    "context": "acall ",
+    "allSuggestions": [
+      "delay1ms"
+    ],
+    "acceptedSuggestion": "delay1ms",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:06:02.689Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:06:57.662Z",
+    "context": "",
+    "allSuggestions": [
+      "delay: NOP",
+      "delay: MOV A, #0"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-14T13:06:57.679Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:18:25.014Z",
+    "context": "delay: ",
+    "allSuggestions": [
+      "setb TR0\njnb TF0, $",
+      "mov R0, #10h\ndjnz R0, delay",
+      "clr TF0\nret"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-04-14T13:18:25.033Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:21:59.592Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:21:59.628Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:22:03.694Z",
+    "context": "mov p1",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:22:03.701Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:22:05.819Z",
+    "context": "mov p1,",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:22:05.830Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:22:07.486Z",
+    "context": "mov p1,#",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:22:07.494Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:27:47.098Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:27:47.136Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:27:48.919Z",
+    "context": "mov p1",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:27:48.925Z"
+  },
+  {
+    "timestamp": "2025-04-14T13:27:50.290Z",
+    "context": "mov p1,",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-04-14T13:27:50.298Z"
   }
 ]

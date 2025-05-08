@@ -318,44 +318,44 @@ export const CodeEditor = () => {
     const currentPosition = textareaRef.current.selectionStart;
     const currentLineNumber = code.split('\n').filter(line => line.trim()).length - 1;
     
-    if (currentLineNumber >= 0 && currentLineNumber < lines.length) {
-      // Skip comment addition if line contains "continue"
-      if (currentLineContent.includes(";")) {
-        return;
-      }
+    // if (currentLineNumber >= 0 && currentLineNumber < lines.length) {
+    //   // Skip comment addition if line contains "continue"
+    //   if (currentLineContent.includes(";")) {
+    //     return;
+    //   }
 
-      // Store any text that might have been typed in the next line
-      const nextLineContent = lines[currentLineNumber + 1] || '';
+    //   // Store any text that might have been typed in the next line
+    //   const nextLineContent = lines[currentLineNumber + 1] || '';
       
-      // Add custom string to the current line
-      const customString = await provideCommentToLine(currentLineContent);
-      lines[currentLineNumber] = currentLineContent + "   ;" + customString;
+    //   // Add custom string to the current line
+    //   const customString = await provideCommentToLine(currentLineContent);
+    //   lines[currentLineNumber] = currentLineContent + "   ;" + customString;
       
-      // Preserve the next line content if it exists
-      if (nextLineContent) {
-        lines[currentLineNumber + 1] = nextLineContent;
-      }
+    //   // Preserve the next line content if it exists
+    //   if (nextLineContent) {
+    //     lines[currentLineNumber + 1] = nextLineContent;
+    //   }
       
-      // Join all lines back together
-      const newCode = lines.filter(line => line.trim()).join('\n');
-      setCode(newCode);
+    //   // Join all lines back together
+    //   const newCode = lines.filter(line => line.trim()).join('\n');
+    //   setCode(newCode);
       
-      // Add a new line after the current line if there wasn't one
-      const finalCode = nextLineContent ? newCode : newCode + '\n';
-      setCode(finalCode);
+    //   // Add a new line after the current line if there wasn't one
+    //   const finalCode = nextLineContent ? newCode : newCode + '\n';
+    //   setCode(finalCode);
       
-      // Update cursor position to the end of the current line
-      const textarea = textareaRef.current;
-      if (textarea) {
-        setTimeout(() => {
-          const currentLineEnd = lines[currentLineNumber].length;
-          const position = finalCode.split('\n').slice(0, currentLineNumber).join('\n').length + currentLineEnd;
-          textarea.selectionStart = position;
-          textarea.selectionEnd = position;
-          textarea.focus();
-        }, 0);
-      }
-    }
+    //   // Update cursor position to the end of the current line
+    //   const textarea = textareaRef.current;
+    //   if (textarea) {
+    //     setTimeout(() => {
+    //       const currentLineEnd = lines[currentLineNumber].length;
+    //       const position = finalCode.split('\n').slice(0, currentLineNumber).join('\n').length + currentLineEnd;
+    //       textarea.selectionStart = position;
+    //       textarea.selectionEnd = position;
+    //       textarea.focus();
+    //     }, 0);
+    //   }
+    // }
   };
 
   const handleKeyDown = (e) => {
@@ -427,12 +427,10 @@ export const CodeEditor = () => {
       const currentLineNumber = code.split('\n').filter(line => line.trim()).length - 1;
       const currentLineContent = lines[currentLineNumber];
 
-      // Call the handler after the Enter key event is processed
       setTimeout(() => {
         handleEnterPress(currentLineContent);
       }, 0);
     } else {
-      // Clear word completion suggestion on other key presses
       if (!e.ctrlKey && e.key !== 'Shift' && e.key !== 'Alt' && e.key !== 'Meta') {
         setSuggestions([]);
       }
@@ -440,19 +438,16 @@ export const CodeEditor = () => {
   };
 
   const handleCtrlEnterPress = async () => {
-    // Get all lines and current cursor position
     const lines = code.split('\n');
     const currentPosition = textareaRef.current.selectionStart;
     const currentLineNumber = code.split('\n').filter(line => line.trim()).length - 1;
     
     if (currentLineNumber >= 0 && currentLineNumber < lines.length) {
-      // Get suggestions for next lines without adding comments
       const suggestedLines = await nextLinesSuggest(lines.slice(0, currentLineNumber + 1));
       setSuggestions(suggestedLines);
       setShowSuggestionPopup(true);
       setIsCtrlEnterSuggestion(true);
       
-      // Update cursor coordinates for popup positioning
       const textarea = textareaRef.current;
       if (textarea) {
         const textBeforeCursor = code.substring(0, currentPosition);
@@ -460,7 +455,6 @@ export const CodeEditor = () => {
         const currentLineIndex = lines.length - 1;
         const currentLine = lines[currentLineIndex] || '';
         
-        // Use consistent calculations with handleEditorChange
         const characterWidth = 8;
         const lineHeight = 21;
         const x = currentLine.length * characterWidth;
