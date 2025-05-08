@@ -160,7 +160,8 @@ export const CodeEditor = () => {
 
   const provideCommentToLine = async(lineContext) => {
     var comment = await useLLM({type:"comment", architecture, code: lineContext})
-    return comment;
+   // return comment;
+   return "";
   }
 
   const nextLinesSuggest = async (previousLines) => {
