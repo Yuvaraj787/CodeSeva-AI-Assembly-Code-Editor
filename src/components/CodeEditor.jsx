@@ -115,6 +115,37 @@ export const CodeEditor = () => {
     }
   };
 
+  const handleAIPrompt = async (prompt) => {
+    try {
+      // Remove the #ai prefix and trim the prompt
+      const cleanPrompt = prompt.replace(/^#ai\s*/, '').trim();
+      
+      // Call DeepSeek with the prompt
+      const response = await useLLM({
+        type: "ai_prompt",
+        architecture,
+        code: cleanPrompt
+      });
+
+      // Parse the suggestions
+      const suggestions = [];
+      const lines = response.split('\n');
+      console.log(lines)
+      //need all lines as single suggestion
+      var suggestion = lines.join('\n').trim();
+      suggestions.push(suggestion);
+      if (suggestions.length > 0) {
+        console.log(suggestions)
+        setSuggestions(suggestions);
+        setShowSuggestionPopup(true);
+        setIsCtrlEnterSuggestion(true);
+      }
+    } catch (error) {
+      console.error('Error processing AI prompt:', error);
+      setError('Failed to process AI prompt');
+    }
+  };
+
   const handleEditorChange = async (e) => {
     console.log("handleEditorChange called")
     const value = e.target.value;
@@ -127,7 +158,7 @@ export const CodeEditor = () => {
     const lines = textBeforeCursor.split('\n');
     const currentLineIndex = lines.length - 1;
     const currentLine = lines[currentLineIndex] || '';
-    
+ 
     // Use textarea's font metrics (assuming monospace font with ~8px character width)
     const characterWidth = 8; // Approximate character width in pixels
     const lineHeight = 21; // Approximate line height in pixels
@@ -359,7 +390,7 @@ export const CodeEditor = () => {
     // }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = async (e) => {
     if (e.key === 'Tab') {
       e.preventDefault();
       
@@ -422,11 +453,19 @@ export const CodeEditor = () => {
       e.preventDefault();
       handleCtrlEnterPress();
     } else if (e.key === 'Enter') {
+          // Check for #ai prompt
+        
       // Get the current line content before Enter is pressed
       const lines = code.split('\n');
       const currentPosition = e.target.selectionStart;
       const currentLineNumber = code.split('\n').filter(line => line.trim()).length - 1;
       const currentLineContent = lines[currentLineNumber];
+      
+      if (currentLineContent.trim().startsWith('#ai')) {
+        console.log("Hanlding AI prompt")
+        await handleAIPrompt(currentLineContent);
+        return;
+      }
 
       setTimeout(() => {
         handleEnterPress(currentLineContent);

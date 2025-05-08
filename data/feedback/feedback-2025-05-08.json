@@ -1,0 +1,246 @@
+[
+  {
+    "timestamp": "2025-05-08T01:44:30.412Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-05-08T01:44:30.445Z"
+  },
+  {
+    "timestamp": "2025-05-08T01:44:33.505Z",
+    "context": "mov p1 ",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-05-08T01:44:33.556Z"
+  },
+  {
+    "timestamp": "2025-05-08T01:44:39.084Z",
+    "context": "mov p1, ",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-05-08T01:44:39.097Z"
+  },
+  {
+    "timestamp": "2025-05-08T01:44:40.052Z",
+    "context": "mov p1, #",
+    "allSuggestions": [
+      "#"
+    ],
+    "acceptedSuggestion": "#",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-05-08T01:44:40.056Z"
+  },
+  {
+    "timestamp": "2025-05-08T01:44:42.153Z",
+    "context": "mov p1, #",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-05-08T01:44:42.156Z"
+  },
+  {
+    "timestamp": "2025-05-08T01:47:02.409Z",
+    "context": "",
+    "allSuggestions": [
+      "00H"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-05-08T01:47:02.432Z"
+  },
+  {
+    "timestamp": "2025-05-08T01:48:09.186Z",
+    "context": "mov p1, #0x7B",
+    "allSuggestions": [
+      "mov a, p1\nrl a",
+      "mov r0, #0x55\nxrl p1, r0",
+      "cjne a, #0x7B, next\ninc p1"
+    ],
+    "acceptedSuggestion": "mov a, p1\nrl a",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-05-08T01:48:09.221Z"
+  },
+  {
+    "timestamp": "2025-05-08T01:56:25.028Z",
+    "context": "",
+    "allSuggestions": [
+      "MOV A, R0\nADD A, R1",
+      "MOV A, #20H\nADD A, #30H",
+      "MOV A, 40H\nADD A, 41H"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-05-08T01:56:25.033Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:06:16.031Z",
+    "context": "",
+    "allSuggestions": [
+      "MOV A, R0\nADD A, R1",
+      "MOV A, 30H\nADD A, 31H",
+      "MOV A, @R0\nADD A, @R1"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-05-08T02:06:16.043Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:25:55.878Z",
+    "context": "",
+    "allSuggestions": [
+      "ORG 0000H"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-05-08T02:25:55.907Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:26:57.740Z",
+    "context": "",
+    "allSuggestions": [
+      "ORG 0000H"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-05-08T02:26:57.764Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:27:45.374Z",
+    "context": "",
+    "allSuggestions": [
+      "ORG 0000H  \nMOV A, #data1  \nMOV R0, #data2  \nADD A, R0  \nMOV R1, A  \nEND"
+    ],
+    "acceptedSuggestion": "ORG 0000H  \nMOV A, #data1  \nMOV R0, #data2  \nADD A, R0  \nMOV R1, A  \nEND",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-05-08T02:27:45.394Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:28:08.731Z",
+    "context": "",
+    "allSuggestions": [
+      "END",
+      "; (comment or remove the line if not needed)"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-05-08T02:28:08.754Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:28:49.168Z",
+    "context": "",
+    "allSuggestions": [
+      "ORG 0000H  \nMOV A, #data1  \nMOV R0, #data2  \nADD A, R0  \nMOV R1, A  \nEND"
+    ],
+    "acceptedSuggestion": "ORG 0000H  \nMOV A, #data1  \nMOV R0, #data2  \nADD A, R0  \nMOV R1, A  \nEND",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "suggestionType": "multiline",
+    "serverTimestamp": "2025-05-08T02:28:49.179Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:29:49.974Z",
+    "context": "mov ",
+    "allSuggestions": [
+      "p1"
+    ],
+    "acceptedSuggestion": "p1",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-05-08T02:29:50.074Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:29:52.808Z",
+    "context": "mov p1 ",
+    "allSuggestions": [
+      ","
+    ],
+    "acceptedSuggestion": ",",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-05-08T02:29:52.813Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:30:04.767Z",
+    "context": "mov p1, # ",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-05-08T02:30:04.818Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:30:06.650Z",
+    "context": "",
+    "allSuggestions": [
+      "00H"
+    ],
+    "acceptedSuggestion": "00H",
+    "selectedSuggestionIndex": 0,
+    "model": "8051",
+    "action": "accepted",
+    "serverTimestamp": "2025-05-08T02:30:06.653Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:30:57.276Z",
+    "context": "",
+    "allSuggestions": [
+      "mov a, #55H\nmov p2, a",
+      "setb p1.0\njnb p1.0, $",
+      "mov r0, #0FFH\nmov p1, r0"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-05-08T02:30:57.304Z"
+  },
+  {
+    "timestamp": "2025-05-08T02:31:16.058Z",
+    "context": "",
+    "allSuggestions": [
+      "#"
+    ],
+    "selectedSuggestion": 0,
+    "model": "8051",
+    "action": "dismissed",
+    "serverTimestamp": "2025-05-08T02:31:16.072Z"
+  }
+]

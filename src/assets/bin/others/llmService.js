@@ -1,6 +1,6 @@
 export const useLLM = async (prompt, isErrorCheck = false, code) => {
   try {
-    const deepseekKey = "sk-f9d9a1daf0e74305b60c11b2457f801d"; // Replace with your DeepSeek API key
+    const deepseekKey = "sk-a0e514bc5c8c480eb42b324f84777cff"; // Replace with your DeepSeek API key
     const url = "https://api.deepseek.com/v1/chat/completions";
     let finalPrompt = prompt;
     if (prompt.type == "next_line_prediction") {
@@ -56,6 +56,20 @@ Make each suggestion unique and valid for ${prompt.architecture} architecture.`
       
       If the syntax is correct, respond with exactly 'VALID'.
       Be very strict about syntax rules for ${prompt.architecture} architecture.`;
+    } else if (prompt.type == "ai_prompt") {
+      finalPrompt = `You are an expert in ${prompt.architecture} assembly language.
+      You are given a prompt and you need to generate a valid ${prompt.architecture} assembly code.
+      Prompt: ${prompt.code}
+      The response should be a valid ${prompt.architecture} assembly code.
+      The response should be in the following format:
+      [assembly code line 1]
+      [assembly code line 2]
+      .
+      .
+      [assembly code line n]
+
+      no need of explaining the code, just respond with the assembly code.
+      `
     }
 
     const payload = {
